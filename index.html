@@ -158,9 +158,12 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 .wheel{width:300px;height:300px;border-radius:50%;position:relative;
   box-shadow:0 0 0 10px #3a2410,0 0 0 14px #6b4a1f,0 18px 50px rgba(0,0,0,.6);
   transition:transform 5s cubic-bezier(.17,.67,.12,.99)}
-.wheel-pointer{position:absolute;top:-10px;left:50%;transform:translateX(-50%);z-index:5;
-  width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:22px solid var(--gold);
-  filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+.ball-orbit{position:absolute;top:0;left:0;width:300px;height:300px;z-index:6;
+  transition:transform 5s cubic-bezier(.17,.67,.12,.99)}
+.ball{position:absolute;top:8px;left:50%;width:14px;height:14px;border-radius:50%;
+  transform:translateX(-50%);
+  background:radial-gradient(circle at 35% 30%,#fff,#cfcfcf 60%,#9a9a9a);
+  box-shadow:0 2px 5px rgba(0,0,0,.6)}
 .wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
   width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#1a1330,#0d0a1c);
   border:3px solid #6b4a1f;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
@@ -350,7 +353,7 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
   <div class="roul-layout">
     <!-- RODA -->
     <div class="roul-wheel-box">
-      <div class="wheel-pointer"></div>
+      <div id="ball-orbit" class="ball-orbit"><div class="ball"></div></div>
       <div id="wheel" class="wheel"></div>
       <div class="wheel-center">
         <div id="rl-number-big">—</div>
@@ -572,23 +575,24 @@ const RED_SET = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 function buildWheel(){
   const wheel = $("wheel");
   const n = WHEEL_ORDER.length;
-  // desenha os setores com conic-gradient e os números por cima
+  const seg = 360/n;
+  // setores
   let stops = [];
   for(let i=0;i<n;i++){
     const num = WHEEL_ORDER[i];
     const col = num===0 ? "#2e7d32" : (RED_SET.has(num) ? "#c62836" : "#1a1a1a");
-    const a1 = (360/n)*i, a2 = (360/n)*(i+1);
-    stops.push(`${col} ${a1}deg ${a2}deg`);
+    stops.push(`${col} ${seg*i}deg ${seg*(i+1)}deg`);
   }
   wheel.style.background = `conic-gradient(${stops.join(",")})`;
-  // números por cima
+  // números — cada um num contentor rodado, centrado na fatia, empurrado para fora
   let html = "";
   for(let i=0;i<n;i++){
     const num = WHEEL_ORDER[i];
-    const ang = (360/n)*i + (360/n)/2;
-    html += `<div style="position:absolute;top:50%;left:50%;transform-origin:0 0;
-      transform:rotate(${ang}deg) translate(-50%,-50%) translateY(-128px) rotate(90deg);
-      font-family:'Sora';font-weight:700;font-size:11px;color:#fff">${num}</div>`;
+    const ang = seg*i + seg/2;  // centro da fatia i
+    html += `<div style="position:absolute;top:0;left:50%;width:0;height:50%;
+      transform-origin:bottom center;transform:translateX(-50%) rotate(${ang}deg)">
+      <span style="display:block;margin-top:14px;font-family:'Sora';font-weight:700;font-size:12px;color:#fff;
+        transform:rotate(0deg)">${num}</span></div>`;
   }
   wheel.innerHTML = html;
 }
@@ -635,20 +639,30 @@ function totalBet(){ return Object.values(bets).reduce((a,b)=>a+b,0); }
 function updateBetTotal(){ $("rl-total-bet").textContent = totalBet().toLocaleString("pt-PT"); }
 
 function spinWheelTo(number){
-  // roda visualmente até o número ficar em cima (no ponteiro)
   const n = WHEEL_ORDER.length;
   const idx = WHEEL_ORDER.indexOf(number);
   const seg = 360/n;
-  // queremos que o setor 'idx' fique no topo: rodar -(idx*seg) + várias voltas
-  const turns = 5; // voltas completas para efeito
-  const target = turns*360 + (360 - (idx*seg + seg/2));
   const wheel = $("wheel");
-  // reset sem animação, depois anima
-  wheel.style.transition = "none";
-  wheel.style.transform = "rotate(0deg)";
-  void wheel.offsetWidth; // força reflow
+  const orbit = $("ball-orbit");
+  // posição angular do centro da fatia do número (0 = topo)
+  const numAngle = idx*seg + seg/2;
+  // a roda gira para a frente (várias voltas); a bola gira ao contrário e
+  // acaba exatamente sobre o número. Como a bola está no topo (0deg) do orbit,
+  // rodar o orbit em -numAngle (mais voltas) põe a bola sobre a fatia certa
+  // depois de a roda também ter rodado.
+  const wheelTurns = 6, ballTurns = 10;
+  const wheelTarget = wheelTurns*360;                  // roda dá voltas e volta ao 0 visual
+  const ballTarget = ballTurns*360 + numAngle;         // bola acaba sobre o número
+
+  // reset sem animação
+  wheel.style.transition = "none";  orbit.style.transition = "none";
+  wheel.style.transform = "rotate(0deg)";  orbit.style.transform = "rotate(0deg)";
+  void wheel.offsetWidth;
+  // anima
   wheel.style.transition = "transform 5s cubic-bezier(.17,.67,.12,.99)";
-  wheel.style.transform = `rotate(${target}deg)`;
+  orbit.style.transition = "transform 5s cubic-bezier(.17,.67,.12,.99)";
+  wheel.style.transform = `rotate(-${wheelTarget}deg)`;  // roda ao contrário da bola
+  orbit.style.transform = `rotate(${ballTarget}deg)`;
 }
 
 async function spinRoulette(){
