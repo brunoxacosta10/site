@@ -150,6 +150,7 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
     <div class="logo"><span class="dot"></span><span>JIGADORES</span></div>
     <div class="nav-links">
       <a href="#watch">Ao Vivo</a>
+      <a href="#casino">Jogos</a>
       <a href="#promos">Promoções</a>
       <a href="#points">Pontos</a>
       <a href="#" class="btn btn-tw" id="btn-login">▶ Entrar com Twitch</a>
@@ -225,6 +226,29 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
       <div class="desc">Oferta especial sem depósito inicial. Condições no site do parceiro.</div>
       <div class="code"><span class="v">JIGA3</span><span class="cp" onclick="navigator.clipboard&&navigator.clipboard.writeText('JIGA3');this.textContent='Copiado!'">copiar</span></div>
       <a class="btn go">Abrir parceiro</a>
+    </div>
+  </div>
+</section>
+
+<section id="casino" class="wrap">
+  <div class="eyebrow">Jogos da comunidade</div>
+  <h2 class="s-title">Arrisca os teus pontos</h2>
+  <p class="s-sub">Joga com os teus pontos do canal só por diversão. Entra com a Twitch para jogar.</p>
+  <div id="cf-locked" style="padding:30px;border:1px solid var(--line);border-radius:16px;background:var(--panel);text-align:center;color:var(--muted)">
+    Entra com a Twitch para jogares com os teus pontos.
+  </div>
+  <div id="cf-game" style="display:none">
+    <div style="border:1px solid var(--line);border-radius:20px;padding:30px;background:linear-gradient(160deg,var(--panel),#0c0918);max-width:460px">
+      <h3 style="font-size:22px;margin-bottom:4px">🪙 Coinflip</h3>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Cara ou coroa. Acertas, dobras a aposta. Falhas, perde-la.</p>
+      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
+      <input id="cf-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:16px">
+      <div style="display:flex;gap:12px;margin-bottom:18px">
+        <button class="btn" id="cf-heads" style="flex:1;justify-content:center;background:rgba(255,196,66,.12);color:var(--gold);border:1px solid rgba(255,196,66,.4)">Cara</button>
+        <button class="btn" id="cf-tails" style="flex:1;justify-content:center;background:rgba(177,75,255,.12);color:var(--neon);border:1px solid rgba(177,75,255,.4)">Coroa</button>
+      </div>
+      <div id="cf-result" style="text-align:center;font-family:'Chakra Petch';font-size:18px;min-height:48px;display:flex;align-items:center;justify-content:center"></div>
+      <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px">Saldo: <span id="cf-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
     </div>
   </div>
 </section>
@@ -312,11 +336,21 @@ async function refreshUser(){
     if(avatar) $("u-avatar").src = avatar;
     $("user-box").style.display = "flex";
     loginBtns.forEach(b=>{ if(b) b.style.display="none"; });
+    // guarda o token para os jogos (mandado ao backend para confirmar identidade)
+    window._token = session.access_token;
+    // mostra o jogo
+    $("cf-locked").style.display = "none";
+    $("cf-game").style.display = "block";
     // busca os pontos reais do StreamElements
     $("u-points").textContent = "…";
     const pts = await fetchPoints(twitchLogin);
-    $("u-points").textContent = (pts!=null) ? pts.toLocaleString("pt-PT") : "0";
+    const shown = (pts!=null) ? pts : 0;
+    $("u-points").textContent = shown.toLocaleString("pt-PT");
+    $("cf-balance").textContent = shown.toLocaleString("pt-PT");
   }else{
+    window._token = null;
+    $("cf-locked").style.display = "block";
+    $("cf-game").style.display = "none";
     $("user-box").style.display = "none";
     loginBtns.forEach(b=>{ if(b) b.style.display=""; });
   }
@@ -325,6 +359,40 @@ async function refreshUser(){
 // liga os botões
 [$("btn-login"), $("btn-login-hero")].forEach(b=>{ if(b) b.addEventListener("click", loginTwitch); });
 $("btn-logout").addEventListener("click", logout);
+
+// --- Coinflip ---
+async function playCoinflip(choice){
+  if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
+  const bet = parseInt($("cf-bet").value) || 0;
+  if(bet < 1){ $("cf-result").textContent = "Aposta pelo menos 1 ponto."; return; }
+  const hBtn=$("cf-heads"), tBtn=$("cf-tails");
+  hBtn.disabled=tBtn.disabled=true;
+  $("cf-result").innerHTML = '<span style="color:var(--muted)">🪙 a girar…</span>';
+  try{
+    const r = await fetch(`${POINTS_API}/api/play/coinflip`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+window._token },
+      body: JSON.stringify({ bet, choice })
+    });
+    const d = await r.json();
+    if(!r.ok){ $("cf-result").innerHTML = `<span style="color:var(--down)">${d.error||"erro"}</span>`; }
+    else{
+      const saiu = d.result==="heads" ? "Cara" : "Coroa";
+      if(d.won){
+        $("cf-result").innerHTML = `<span style="color:var(--ok)">Saiu ${saiu}! Ganhaste +${d.delta} 🎉</span>`;
+      }else{
+        $("cf-result").innerHTML = `<span style="color:var(--down)">Saiu ${saiu}. Perdeste ${Math.abs(d.delta)} 😢</span>`;
+      }
+      $("cf-balance").textContent = d.balance.toLocaleString("pt-PT");
+      $("u-points").textContent = d.balance.toLocaleString("pt-PT");
+    }
+  }catch(e){
+    $("cf-result").innerHTML = '<span style="color:var(--down)">falha de ligação</span>';
+  }
+  hBtn.disabled=tBtn.disabled=false;
+}
+$("cf-heads").addEventListener("click", ()=>playCoinflip("heads"));
+$("cf-tails").addEventListener("click", ()=>playCoinflip("tails"));
 
 // reage a login/logout e ao voltar da Twitch
 sb.auth.onAuthStateChange(()=>refreshUser());
