@@ -139,10 +139,6 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
   width:42px;height:42px;line-height:40px;font-family:"Sora";font-weight:800;margin-bottom:18px}
 
 /* reveal on load */
-.rl-btn{font-family:"Sora";font-weight:600;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer;
-  background:var(--panel);border:1px solid var(--line);color:var(--txt);transition:.18s}
-.rl-btn:hover{transform:translateY(-2px);border-color:var(--gold)}
-.rl-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .game-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 @media(max-width:880px){.game-cards{grid-template-columns:1fr}}
 .game-card{border:1px solid var(--line);border-radius:20px;padding:28px;background:linear-gradient(160deg,var(--panel),#0c0918);
@@ -154,6 +150,51 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 .game-card .gc-go{font-family:"Chakra Petch";font-weight:700;color:var(--gold);font-size:14px}
 .game-card.gc-soon{cursor:default;opacity:.7}
 .game-card.gc-soon:hover{transform:none;border-color:var(--line);box-shadow:none}
+
+/* ===== ROLETA REALISTA ===== */
+.roul-layout{display:grid;grid-template-columns:340px 1fr;gap:30px;margin-top:24px;align-items:center}
+@media(max-width:820px){.roul-layout{grid-template-columns:1fr;justify-items:center}}
+.roul-wheel-box{position:relative;width:300px;height:300px}
+.wheel{width:300px;height:300px;border-radius:50%;position:relative;
+  box-shadow:0 0 0 10px #3a2410,0 0 0 14px #6b4a1f,0 18px 50px rgba(0,0,0,.6);
+  transition:transform 5s cubic-bezier(.17,.67,.12,.99)}
+.wheel-pointer{position:absolute;top:-10px;left:50%;transform:translateX(-50%);z-index:5;
+  width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:22px solid var(--gold);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+.wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
+  width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#1a1330,#0d0a1c);
+  border:3px solid #6b4a1f;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#rl-number-big{font-family:"Sora";font-weight:800;font-size:42px;line-height:1}
+.roul-controls{width:100%;max-width:380px}
+.roul-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip-btn{width:46px;height:46px;border-radius:50%;border:2px dashed rgba(255,255,255,.35);cursor:pointer;
+  font-family:"Chakra Petch";font-weight:700;font-size:13px;color:#fff;background:radial-gradient(circle,#b14bff,#5d2bff);transition:.18s}
+.chip-btn:hover{transform:scale(1.08)}
+.chip-btn.active{border-color:var(--gold);box-shadow:0 0 14px rgba(255,196,66,.6);transform:scale(1.1)}
+.roul-bet-info{font-size:14px;color:var(--muted);margin-top:6px}
+
+.roul-table-wrap{margin-top:30px;overflow-x:auto}
+.roul-table{display:flex;gap:4px;min-width:560px}
+.bet-zero{width:42px;background:#2e7d32;border:1px solid rgba(255,255,255,.25);border-radius:8px 0 0 8px;
+  display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:800;font-size:20px;cursor:pointer;color:#fff;position:relative}
+.numbers-grid{display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(3,46px);gap:4px;flex:1}
+.num-cell{display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:700;font-size:15px;
+  cursor:pointer;border:1px solid rgba(255,255,255,.18);border-radius:5px;color:#fff;position:relative;transition:.12s}
+.num-cell.red{background:#c62836} .num-cell.black{background:#1a1a1a}
+.num-cell:hover,.bet-zero:hover,.bet-cell:hover{outline:2px solid var(--gold);outline-offset:-2px}
+.col-bets{display:grid;grid-template-rows:repeat(3,46px);gap:4px;width:50px}
+.bet-cell{display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:600;font-size:13px;
+  cursor:pointer;border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;background:rgba(255,255,255,.04);
+  padding:10px 4px;text-align:center;position:relative;transition:.12s}
+.bet-cell.side{font-size:12px}
+.bet-cell.red-cell{background:#c62836} .bet-cell.black-cell{background:#1a1a1a}
+.roul-outside{display:flex;gap:4px;margin-top:4px;min-width:560px}
+.roul-outside .bet-cell{flex:1;padding:14px 4px}
+/* ficha colocada numa zona */
+.placed-chip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;
+  min-width:26px;height:26px;border-radius:50%;background:radial-gradient(circle,#ffc442,#ff8a2b);
+  border:2px solid #fff;color:#1a1206;font-family:"Chakra Petch";font-weight:700;font-size:11px;
+  display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 2px 6px rgba(0,0,0,.5)}
 
 @keyframes rise{to{opacity:1;transform:none}}
 .d1{animation-delay:.05s}.d2{animation-delay:.15s}.d3{animation-delay:.28s}.d4{animation-delay:.42s}.d5{animation-delay:.56s}
@@ -305,40 +346,66 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 <section class="wrap" style="padding-top:50px">
   <a href="#" onclick="showScreen('lobby');return false" style="color:var(--muted);font-size:14px">← Voltar aos jogos</a>
   <h2 class="s-title" style="margin-top:18px">🎡 Roleta</h2>
-  <div style="border:1px solid var(--line);border-radius:20px;padding:30px;background:linear-gradient(160deg,var(--panel),#0c0918);max-width:620px;margin-top:20px">
-    <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Roleta europeia. Aposta em cor, número, par/ímpar, metade, dúzia ou coluna.</p>
-    <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
-    <input id="rl-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:18px">
 
-    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Cores (x2) · Par/Ímpar · Metades</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-      <button class="rl-btn" data-t="color" data-v="red" style="background:rgba(220,40,60,.18);border:1px solid rgba(220,40,60,.5);color:#ff6b7e">Vermelho</button>
-      <button class="rl-btn" data-t="color" data-v="black" style="background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt)">Preto</button>
-      <button class="rl-btn" data-t="parity" data-v="even">Par</button>
-      <button class="rl-btn" data-t="parity" data-v="odd">Ímpar</button>
-      <button class="rl-btn" data-t="half" data-v="low">1-18</button>
-      <button class="rl-btn" data-t="half" data-v="high">19-36</button>
+  <div class="roul-layout">
+    <!-- RODA -->
+    <div class="roul-wheel-box">
+      <div class="wheel-pointer"></div>
+      <div id="wheel" class="wheel"></div>
+      <div class="wheel-center">
+        <div id="rl-number-big">—</div>
+        <div style="font-size:11px;color:var(--muted);letter-spacing:.1em">RESULTADO</div>
+      </div>
     </div>
 
-    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Dúzias & Colunas (x3)</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-      <button class="rl-btn" data-t="dozen" data-v="d1">1ª dúzia</button>
-      <button class="rl-btn" data-t="dozen" data-v="d2">2ª dúzia</button>
-      <button class="rl-btn" data-t="dozen" data-v="d3">3ª dúzia</button>
-      <button class="rl-btn" data-t="column" data-v="c1">Coluna 1</button>
-      <button class="rl-btn" data-t="column" data-v="c2">Coluna 2</button>
-      <button class="rl-btn" data-t="column" data-v="c3">Coluna 3</button>
+    <!-- CONTROLOS -->
+    <div class="roul-controls">
+      <div class="roul-chips">
+        <span style="font-size:12px;color:var(--muted)">Ficha:</span>
+        <button class="chip-btn active" data-chip="10">10</button>
+        <button class="chip-btn" data-chip="50">50</button>
+        <button class="chip-btn" data-chip="100">100</button>
+        <button class="chip-btn" data-chip="500">500</button>
+        <button class="chip-btn" data-chip="1000">1K</button>
+      </div>
+      <div class="roul-bet-info">
+        Aposta total: <span id="rl-total-bet" style="color:var(--gold);font-weight:700">0</span> ·
+        Saldo: <span id="rl-balance" style="color:var(--gold);font-weight:700">—</span>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn" id="rl-spin" style="flex:1;justify-content:center;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206;font-size:16px">🎡 Rodar</button>
+        <button class="btn" id="rl-clear" style="background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt)">Limpar</button>
+      </div>
+      <div id="rl-result" style="text-align:center;font-family:'Chakra Petch';font-size:17px;min-height:40px;display:flex;align-items:center;justify-content:center;margin-top:10px"></div>
     </div>
-
-    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Número exato (x36)</div>
-    <div style="display:flex;gap:8px;margin-bottom:18px">
-      <input id="rl-num" type="number" min="0" max="36" placeholder="0-36" style="width:100px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt)">
-      <button class="rl-btn" data-t="number" data-v="__num__" style="background:rgba(255,196,66,.12);border:1px solid rgba(255,196,66,.4);color:var(--gold)">Apostar no número</button>
-    </div>
-
-    <div id="rl-result" style="text-align:center;font-family:'Chakra Petch';font-size:18px;min-height:48px;display:flex;align-items:center;justify-content:center"></div>
-    <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px">Saldo: <span id="rl-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
   </div>
+
+  <!-- MESA DE APOSTAS -->
+  <div class="roul-table-wrap">
+    <div class="roul-table">
+      <div class="bet-zero" data-t="number" data-v="0">0</div>
+      <div class="numbers-grid" id="numbers-grid"></div>
+      <div class="col-bets">
+        <div class="bet-cell side" data-t="column" data-v="c3">2:1</div>
+        <div class="bet-cell side" data-t="column" data-v="c2">2:1</div>
+        <div class="bet-cell side" data-t="column" data-v="c1">2:1</div>
+      </div>
+    </div>
+    <div class="roul-outside">
+      <div class="bet-cell" data-t="dozen" data-v="d1">1ª dúzia</div>
+      <div class="bet-cell" data-t="dozen" data-v="d2">2ª dúzia</div>
+      <div class="bet-cell" data-t="dozen" data-v="d3">3ª dúzia</div>
+    </div>
+    <div class="roul-outside">
+      <div class="bet-cell" data-t="half" data-v="low">1-18</div>
+      <div class="bet-cell" data-t="parity" data-v="even">Par</div>
+      <div class="bet-cell red-cell" data-t="color" data-v="red">Vermelho</div>
+      <div class="bet-cell black-cell" data-t="color" data-v="black">Preto</div>
+      <div class="bet-cell" data-t="parity" data-v="odd">Ímpar</div>
+      <div class="bet-cell" data-t="half" data-v="high">19-36</div>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:12px;margin-top:14px;text-align:center">Clica numa ficha, depois nas zonas da mesa para apostar. Podes apostar em várias ao mesmo tempo.</p>
 </section>
 </div><!-- /screen-roulette -->
 
@@ -369,6 +436,12 @@ const POINTS_API = "https://web-production-6d300.up.railway.app";
 
 const $ = id => document.getElementById(id);
 
+// estado da roleta (declarado cedo para o openGame poder usar)
+let currentChip = 10;
+let bets = {};
+let rouletteBuilt = false;
+let spinning = false;
+
 // --- Troca de ecrãs (home / lobby / jogos) ---
 const SCREENS = ["home","lobby","coinflip","roulette"];
 function showScreen(name){
@@ -384,6 +457,11 @@ function openGame(game){
     showScreen("lobby");
     const lk = $("lobby-locked"); if(lk) lk.style.display="block";
     return;
+  }
+  if(game==="roulette" && !rouletteBuilt){
+    buildWheel();
+    buildTable();
+    rouletteBuilt = true;
   }
   showScreen(game);
 }
@@ -486,47 +564,155 @@ async function playCoinflip(choice){
 $("cf-heads").addEventListener("click", ()=>playCoinflip("heads"));
 $("cf-tails").addEventListener("click", ()=>playCoinflip("tails"));
 
-// --- Roleta ---
-async function playRoulette(betType, betValue){
-  if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
-  const bet = parseInt($("rl-bet").value) || 0;
-  if(bet < 1){ $("rl-result").textContent = "Aposta pelo menos 1 ponto."; return; }
-  let value = betValue;
-  if(betValue === "__num__"){
-    value = parseInt($("rl-num").value);
-    if(isNaN(value) || value<0 || value>36){ $("rl-result").textContent = "Escolhe um número de 0 a 36."; return; }
+// --- ROLETA REALISTA ---
+// ordem real da roda europeia (sentido horário a partir do 0)
+const WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+const RED_SET = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+
+function buildWheel(){
+  const wheel = $("wheel");
+  const n = WHEEL_ORDER.length;
+  // desenha os setores com conic-gradient e os números por cima
+  let stops = [];
+  for(let i=0;i<n;i++){
+    const num = WHEEL_ORDER[i];
+    const col = num===0 ? "#2e7d32" : (RED_SET.has(num) ? "#c62836" : "#1a1a1a");
+    const a1 = (360/n)*i, a2 = (360/n)*(i+1);
+    stops.push(`${col} ${a1}deg ${a2}deg`);
   }
-  const btns = document.querySelectorAll(".rl-btn");
-  btns.forEach(b=>b.disabled=true);
+  wheel.style.background = `conic-gradient(${stops.join(",")})`;
+  // números por cima
+  let html = "";
+  for(let i=0;i<n;i++){
+    const num = WHEEL_ORDER[i];
+    const ang = (360/n)*i + (360/n)/2;
+    html += `<div style="position:absolute;top:50%;left:50%;transform-origin:0 0;
+      transform:rotate(${ang}deg) translate(-50%,-50%) translateY(-128px) rotate(90deg);
+      font-family:'Sora';font-weight:700;font-size:11px;color:#fff">${num}</div>`;
+  }
+  wheel.innerHTML = html;
+}
+
+function buildTable(){
+  const grid = $("numbers-grid");
+  // 3 linhas: cima 3,6,9...36 / meio 2,5,...35 / baixo 1,4,...34
+  // a ordem da grelha vai coluna a coluna; usamos CSS grid 12x3
+  let html = "";
+  for(let row=0;row<3;row++){
+    for(let col=0;col<12;col++){
+      const num = col*3 + (3-row); // row0->3,6.. row1->2,5.. row2->1,4..
+      const cls = RED_SET.has(num) ? "red" : "black";
+      html += `<div class="num-cell ${cls}" data-t="number" data-v="${num}" style="grid-column:${col+1};grid-row:${row+1}">${num}</div>`;
+    }
+  }
+  grid.innerHTML = html;
+  // liga clique a TODAS as zonas (números + fora)
+  document.querySelectorAll("#screen-roulette [data-t]").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      if(spinning) return;
+      if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
+      placeBet(el.dataset.t, el.dataset.v, el);
+    });
+  });
+}
+
+function betKey(t,v){ return t+":"+v; }
+function placeBet(t,v,el){
+  const k = betKey(t,v);
+  bets[k] = (bets[k]||0) + currentChip;
+  // mostra/atualiza ficha na zona
+  let chip = el.querySelector(".placed-chip");
+  if(!chip){ chip = document.createElement("div"); chip.className="placed-chip"; el.appendChild(chip); }
+  chip.textContent = bets[k];
+  updateBetTotal();
+}
+function clearBets(){
+  bets = {};
+  document.querySelectorAll("#screen-roulette .placed-chip").forEach(c=>c.remove());
+  updateBetTotal();
+}
+function totalBet(){ return Object.values(bets).reduce((a,b)=>a+b,0); }
+function updateBetTotal(){ $("rl-total-bet").textContent = totalBet().toLocaleString("pt-PT"); }
+
+function spinWheelTo(number){
+  // roda visualmente até o número ficar em cima (no ponteiro)
+  const n = WHEEL_ORDER.length;
+  const idx = WHEEL_ORDER.indexOf(number);
+  const seg = 360/n;
+  // queremos que o setor 'idx' fique no topo: rodar -(idx*seg) + várias voltas
+  const turns = 5; // voltas completas para efeito
+  const target = turns*360 + (360 - (idx*seg + seg/2));
+  const wheel = $("wheel");
+  // reset sem animação, depois anima
+  wheel.style.transition = "none";
+  wheel.style.transform = "rotate(0deg)";
+  void wheel.offsetWidth; // força reflow
+  wheel.style.transition = "transform 5s cubic-bezier(.17,.67,.12,.99)";
+  wheel.style.transform = `rotate(${target}deg)`;
+}
+
+async function spinRoulette(){
+  if(spinning) return;
+  if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
+  const stake = totalBet();
+  if(stake < 1){ $("rl-result").textContent = "Faz pelo menos uma aposta."; return; }
+
+  // monta a lista de apostas para enviar ao backend
+  const betList = Object.entries(bets).map(([k,amt])=>{
+    const [t,v] = k.split(":");
+    return { bet_type:t, bet_value:(t==="number"?parseInt(v):v), bet:amt };
+  });
+
+  spinning = true;
+  $("rl-spin").disabled = true;
   $("rl-result").innerHTML = '<span style="color:var(--muted)">🎡 a rodar…</span>';
+
   try{
-    const r = await fetch(`${POINTS_API}/api/play/roulette`, {
+    const r = await fetch(`${POINTS_API}/api/play/roulette_multi`, {
       method:"POST",
       headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+window._token },
-      body: JSON.stringify({ bet, bet_type: betType, bet_value: value })
+      body: JSON.stringify({ bets: betList })
     });
     const d = await r.json();
-    if(!r.ok){ $("rl-result").innerHTML = `<span style="color:var(--down)">${d.error||"erro"}</span>`; }
-    else{
+    if(!r.ok){
+      $("rl-result").innerHTML = `<span style="color:var(--down)">${d.error||"erro"}</span>`;
+      spinning=false; $("rl-spin").disabled=false; return;
+    }
+    // anima a roda até ao número que o servidor decidiu
+    spinWheelTo(d.number);
+    // espera a animação (5s) e mostra o resultado
+    setTimeout(()=>{
       const cores = {red:"Vermelho",black:"Preto",green:"Verde"};
-      const corTxt = cores[d.color] || d.color;
-      const corHex = d.color==="red" ? "#ff6b7e" : (d.color==="green" ? "#27e0ff" : "#ece8ff");
-      let msg = `Saiu <b style="color:${corHex}">${d.number} (${corTxt})</b> — `;
-      if(d.won) msg += `<span style="color:var(--ok)">ganhaste +${d.delta} 🎉</span>`;
-      else msg += `<span style="color:var(--down)">perdeste ${Math.abs(d.delta)} 😢</span>`;
+      const corHex = d.color==="red" ? "#ff6b7e" : (d.color==="green" ? "#46e08a" : "#ece8ff");
+      $("rl-number-big").textContent = d.number;
+      $("rl-number-big").style.color = corHex;
+      let msg = `Saiu <b style="color:${corHex}">${d.number} (${cores[d.color]})</b> — `;
+      if(d.delta > 0) msg += `<span style="color:var(--ok)">ganhaste +${d.delta} 🎉</span>`;
+      else if(d.delta < 0) msg += `<span style="color:var(--down)">perdeste ${Math.abs(d.delta)} 😢</span>`;
+      else msg += `empate`;
       $("rl-result").innerHTML = msg;
       $("rl-balance").textContent = d.balance.toLocaleString("pt-PT");
       $("cf-balance").textContent = d.balance.toLocaleString("pt-PT");
       $("u-points").textContent = d.balance.toLocaleString("pt-PT");
-    }
+      clearBets();
+      spinning=false; $("rl-spin").disabled=false;
+    }, 5200);
   }catch(e){
     $("rl-result").innerHTML = '<span style="color:var(--down)">falha de ligação</span>';
+    spinning=false; $("rl-spin").disabled=false;
   }
-  btns.forEach(b=>b.disabled=false);
 }
-document.querySelectorAll(".rl-btn").forEach(b=>{
-  b.addEventListener("click", ()=>playRoulette(b.dataset.t, b.dataset.v));
+
+// seleção de fichas
+document.querySelectorAll(".chip-btn").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    document.querySelectorAll(".chip-btn").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    currentChip = parseInt(b.dataset.chip);
+  });
 });
+$("rl-spin").addEventListener("click", spinRoulette);
+$("rl-clear").addEventListener("click", ()=>{ if(!spinning) clearBets(); });
 
 // reage a login/logout e ao voltar da Twitch
 sb.auth.onAuthStateChange(()=>refreshUser());
