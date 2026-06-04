@@ -143,6 +143,17 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
   background:var(--panel);border:1px solid var(--line);color:var(--txt);transition:.18s}
 .rl-btn:hover{transform:translateY(-2px);border-color:var(--gold)}
 .rl-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.game-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:880px){.game-cards{grid-template-columns:1fr}}
+.game-card{border:1px solid var(--line);border-radius:20px;padding:28px;background:linear-gradient(160deg,var(--panel),#0c0918);
+  cursor:pointer;transition:.25s;text-align:left}
+.game-card:hover{transform:translateY(-6px);border-color:rgba(255,196,66,.45);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.game-card .gc-ic{font-size:46px;margin-bottom:14px}
+.game-card h3{font-size:23px;margin-bottom:8px}
+.game-card p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:18px;font-weight:300}
+.game-card .gc-go{font-family:"Chakra Petch";font-weight:700;color:var(--gold);font-size:14px}
+.game-card.gc-soon{cursor:default;opacity:.7}
+.game-card.gc-soon:hover{transform:none;border-color:var(--line);box-shadow:none}
 
 @keyframes rise{to{opacity:1;transform:none}}
 .d1{animation-delay:.05s}.d2{animation-delay:.15s}.d3{animation-delay:.28s}.d4{animation-delay:.42s}.d5{animation-delay:.56s}
@@ -154,10 +165,9 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
   <div class="wrap nav-in">
     <div class="logo"><span class="dot"></span><span>JIGADORES</span></div>
     <div class="nav-links">
-      <a href="#watch">Ao Vivo</a>
-      <a href="#casino">Jogos</a>
-      <a href="#promos">Promoções</a>
-      <a href="#points">Pontos</a>
+      <a href="#" onclick="showScreen('home');return false">Início</a>
+      <a href="#" onclick="showScreen('lobby');return false">Jogos</a>
+      <a href="#" onclick="showScreen('home');setTimeout(()=>location.hash='#promos',50);return false">Promoções</a>
       <a href="#" class="btn btn-tw" id="btn-login">▶ Entrar com Twitch</a>
       <div id="user-box" style="display:none;align-items:center;gap:12px">
         <span style="display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);padding:6px 13px 6px 6px;border-radius:30px">
@@ -171,13 +181,14 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
   </div>
 </nav>
 
+<div id="screen-home">
 <header class="hero wrap">
   <div class="chip c1">Streams diárias</div>
   <div class="chip c2">Bónus exclusivos</div>
-  <div class="chip c3">Loja de pontos</div>
+  <div class="chip c3">Jogos da comunidade</div>
   <div class="live-badge rv"><span class="live-dot"></span> AO VIVO AGORA · vê o stream</div>
   <h1 class="rv d1">A casa do<br><span class="grad">JIGADORES</span></h1>
-  <p class="rv d2">Streams ao vivo, promoções exclusivas com os melhores parceiros, sorteios para a comunidade e uma loja de pontos só para quem segue.</p>
+  <p class="rv d2">Streams ao vivo, promoções exclusivas com os melhores parceiros, e jogos com os teus pontos do canal só por diversão.</p>
   <div class="hero-cta rv d3">
     <a href="#" class="btn btn-tw btn-xl" id="btn-login-hero">▶ Entrar com Twitch</a>
     <a href="#promos" class="btn btn-ghost btn-xl">Ver promoções</a>
@@ -235,80 +246,101 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
   </div>
 </section>
 
-<section id="casino" class="wrap">
-  <div class="eyebrow">Jogos da comunidade</div>
-  <h2 class="s-title">Arrisca os teus pontos</h2>
-  <p class="s-sub">Joga com os teus pontos do canal só por diversão. Entra com a Twitch para jogar.</p>
-  <div id="cf-locked" style="padding:30px;border:1px solid var(--line);border-radius:16px;background:var(--panel);text-align:center;color:var(--muted)">
+</div><!-- /screen-home -->
+
+<!-- ECRÃ: LOBBY DE JOGOS -->
+<div id="screen-lobby" style="display:none">
+<section class="wrap" style="padding-top:50px">
+  <a href="#" onclick="showScreen('home');return false" style="color:var(--muted);font-size:14px">← Voltar ao início</a>
+  <div class="eyebrow" style="margin-top:18px">Jogos da comunidade</div>
+  <h2 class="s-title">Escolhe um jogo</h2>
+  <p class="s-sub">Joga com os teus pontos do canal, só por diversão. Entra com a Twitch para jogar.</p>
+  <div id="lobby-locked" style="padding:30px;border:1px solid var(--line);border-radius:16px;background:var(--panel);text-align:center;color:var(--muted);margin-bottom:24px;display:none">
     Entra com a Twitch para jogares com os teus pontos.
   </div>
-  <div id="cf-game" style="display:none">
-    <div style="border:1px solid var(--line);border-radius:20px;padding:30px;background:linear-gradient(160deg,var(--panel),#0c0918);max-width:460px">
-      <h3 style="font-size:22px;margin-bottom:4px">🪙 Coinflip</h3>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Cara ou coroa. Acertas, dobras a aposta. Falhas, perde-la.</p>
-      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
-      <input id="cf-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:16px">
-      <div style="display:flex;gap:12px;margin-bottom:18px">
-        <button class="btn" id="cf-heads" style="flex:1;justify-content:center;background:rgba(255,196,66,.12);color:var(--gold);border:1px solid rgba(255,196,66,.4)">Cara</button>
-        <button class="btn" id="cf-tails" style="flex:1;justify-content:center;background:rgba(177,75,255,.12);color:var(--neon);border:1px solid rgba(177,75,255,.4)">Coroa</button>
-      </div>
-      <div id="cf-result" style="text-align:center;font-family:'Chakra Petch';font-size:18px;min-height:48px;display:flex;align-items:center;justify-content:center"></div>
-      <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px">Saldo: <span id="cf-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
+  <div class="game-cards">
+    <div class="game-card" onclick="openGame('coinflip')">
+      <div class="gc-ic">🪙</div>
+      <h3>Coinflip</h3>
+      <p>Cara ou coroa. Acertas, dobras. Falhas, perdes.</p>
+      <span class="gc-go">Jogar →</span>
     </div>
-
-    <div style="border:1px solid var(--line);border-radius:20px;padding:30px;background:linear-gradient(160deg,var(--panel),#0c0918);max-width:620px;margin-top:24px">
-      <h3 style="font-size:22px;margin-bottom:4px">🎡 Roleta</h3>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Roleta europeia. Aposta em cor, número, par/ímpar, metade, dúzia ou coluna.</p>
-      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
-      <input id="rl-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:18px">
-
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Cores (x2) · Par/Ímpar · Metades</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-        <button class="rl-btn" data-t="color" data-v="red" style="background:rgba(220,40,60,.18);border:1px solid rgba(220,40,60,.5);color:#ff6b7e">Vermelho</button>
-        <button class="rl-btn" data-t="color" data-v="black" style="background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt)">Preto</button>
-        <button class="rl-btn" data-t="parity" data-v="even">Par</button>
-        <button class="rl-btn" data-t="parity" data-v="odd">Ímpar</button>
-        <button class="rl-btn" data-t="half" data-v="low">1-18</button>
-        <button class="rl-btn" data-t="half" data-v="high">19-36</button>
-      </div>
-
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Dúzias & Colunas (x3)</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-        <button class="rl-btn" data-t="dozen" data-v="d1">1ª dúzia</button>
-        <button class="rl-btn" data-t="dozen" data-v="d2">2ª dúzia</button>
-        <button class="rl-btn" data-t="dozen" data-v="d3">3ª dúzia</button>
-        <button class="rl-btn" data-t="column" data-v="c1">Coluna 1</button>
-        <button class="rl-btn" data-t="column" data-v="c2">Coluna 2</button>
-        <button class="rl-btn" data-t="column" data-v="c3">Coluna 3</button>
-      </div>
-
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Número exato (x36)</div>
-      <div style="display:flex;gap:8px;margin-bottom:18px">
-        <input id="rl-num" type="number" min="0" max="36" placeholder="0-36" style="width:100px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt)">
-        <button class="rl-btn" data-t="number" data-v="__num__" style="background:rgba(255,196,66,.12);border:1px solid rgba(255,196,66,.4);color:var(--gold)">Apostar no número</button>
-      </div>
-
-      <div id="rl-result" style="text-align:center;font-family:'Chakra Petch';font-size:18px;min-height:48px;display:flex;align-items:center;justify-content:center"></div>
-      <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px">Saldo: <span id="rl-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
+    <div class="game-card" onclick="openGame('roulette')">
+      <div class="gc-ic">🎡</div>
+      <h3>Roleta</h3>
+      <p>Roleta europeia. Cores, números, dúzias e mais.</p>
+      <span class="gc-go">Jogar →</span>
+    </div>
+    <div class="game-card gc-soon">
+      <div class="gc-ic">🃏</div>
+      <h3>Blackjack</h3>
+      <p>Chega a 21 sem rebentar. Contra a casa.</p>
+      <span class="gc-go" style="color:var(--cyan)">Em breve</span>
     </div>
   </div>
 </section>
+</div><!-- /screen-lobby -->
 
-<section id="points" class="wrap">
-  <div class="points">
-    <div>
-      <div class="eyebrow">Recompensas da comunidade</div>
-      <h2>Ganha pontos.<br>Troca por prémios.</h2>
-      <p>Quanto mais acompanhas o canal, mais pontos acumulas — e trocas por merch, sorteios e vantagens na loja da comunidade.</p>
-      <span class="soon">LOGIN TWITCH + LOJA · em breve</span>
+<!-- ECRÃ: COINFLIP -->
+<div id="screen-coinflip" style="display:none">
+<section class="wrap" style="padding-top:50px">
+  <a href="#" onclick="showScreen('lobby');return false" style="color:var(--muted);font-size:14px">← Voltar aos jogos</a>
+  <h2 class="s-title" style="margin-top:18px">🪙 Coinflip</h2>
+  <div style="border:1px solid var(--line);border-radius:20px;padding:30px;background:linear-gradient(160deg,var(--panel),#0c0918);max-width:460px;margin-top:20px">
+    <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Cara ou coroa. Acertas, dobras a aposta. Falhas, perde-la.</p>
+    <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
+    <input id="cf-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:16px">
+    <div style="display:flex;gap:12px;margin-bottom:18px">
+      <button class="btn" id="cf-heads" style="flex:1;justify-content:center;background:rgba(255,196,66,.12);color:var(--gold);border:1px solid rgba(255,196,66,.4)">Cara</button>
+      <button class="btn" id="cf-tails" style="flex:1;justify-content:center;background:rgba(177,75,255,.12);color:var(--neon);border:1px solid rgba(177,75,255,.4)">Coroa</button>
     </div>
-    <div class="steps">
-      <div class="step"><div class="num">1</div><div class="tx"><b>Entra com a Twitch</b><span>Liga a tua conta num clique, sem palavras-passe novas.</span></div></div>
-      <div class="step"><div class="num">2</div><div class="tx"><b>Acumula pontos</b><span>Ganha por seguires e participares na comunidade.</span></div></div>
-      <div class="step"><div class="num">3</div><div class="tx"><b>Troca na loja</b><span>Usa os pontos em merch, sorteios e recompensas.</span></div></div>
-    </div>
+    <div id="cf-result" style="text-align:center;font-family:'Chakra Petch';font-size:18px;min-height:48px;display:flex;align-items:center;justify-content:center"></div>
+    <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px">Saldo: <span id="cf-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
   </div>
 </section>
+</div><!-- /screen-coinflip -->
+
+<!-- ECRÃ: ROLETA -->
+<div id="screen-roulette" style="display:none">
+<section class="wrap" style="padding-top:50px">
+  <a href="#" onclick="showScreen('lobby');return false" style="color:var(--muted);font-size:14px">← Voltar aos jogos</a>
+  <h2 class="s-title" style="margin-top:18px">🎡 Roleta</h2>
+  <div style="border:1px solid var(--line);border-radius:20px;padding:30px;background:linear-gradient(160deg,var(--panel),#0c0918);max-width:620px;margin-top:20px">
+    <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Roleta europeia. Aposta em cor, número, par/ímpar, metade, dúzia ou coluna.</p>
+    <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
+    <input id="rl-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:18px">
+
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Cores (x2) · Par/Ímpar · Metades</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+      <button class="rl-btn" data-t="color" data-v="red" style="background:rgba(220,40,60,.18);border:1px solid rgba(220,40,60,.5);color:#ff6b7e">Vermelho</button>
+      <button class="rl-btn" data-t="color" data-v="black" style="background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt)">Preto</button>
+      <button class="rl-btn" data-t="parity" data-v="even">Par</button>
+      <button class="rl-btn" data-t="parity" data-v="odd">Ímpar</button>
+      <button class="rl-btn" data-t="half" data-v="low">1-18</button>
+      <button class="rl-btn" data-t="half" data-v="high">19-36</button>
+    </div>
+
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Dúzias & Colunas (x3)</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+      <button class="rl-btn" data-t="dozen" data-v="d1">1ª dúzia</button>
+      <button class="rl-btn" data-t="dozen" data-v="d2">2ª dúzia</button>
+      <button class="rl-btn" data-t="dozen" data-v="d3">3ª dúzia</button>
+      <button class="rl-btn" data-t="column" data-v="c1">Coluna 1</button>
+      <button class="rl-btn" data-t="column" data-v="c2">Coluna 2</button>
+      <button class="rl-btn" data-t="column" data-v="c3">Coluna 3</button>
+    </div>
+
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Número exato (x36)</div>
+    <div style="display:flex;gap:8px;margin-bottom:18px">
+      <input id="rl-num" type="number" min="0" max="36" placeholder="0-36" style="width:100px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt)">
+      <button class="rl-btn" data-t="number" data-v="__num__" style="background:rgba(255,196,66,.12);border:1px solid rgba(255,196,66,.4);color:var(--gold)">Apostar no número</button>
+    </div>
+
+    <div id="rl-result" style="text-align:center;font-family:'Chakra Petch';font-size:18px;min-height:48px;display:flex;align-items:center;justify-content:center"></div>
+    <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px">Saldo: <span id="rl-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
+  </div>
+</section>
+</div><!-- /screen-roulette -->
 
 <footer class="wrap">
   <div class="age">18+</div>
@@ -336,6 +368,27 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const POINTS_API = "https://web-production-6d300.up.railway.app";
 
 const $ = id => document.getElementById(id);
+
+// --- Troca de ecrãs (home / lobby / jogos) ---
+const SCREENS = ["home","lobby","coinflip","roulette"];
+function showScreen(name){
+  SCREENS.forEach(s=>{
+    const el = $("screen-"+s);
+    if(el) el.style.display = (s===name) ? "block" : "none";
+  });
+  window.scrollTo(0,0);
+}
+// abrir um jogo (só se tiver login)
+function openGame(game){
+  if(!window._token){
+    showScreen("lobby");
+    const lk = $("lobby-locked"); if(lk) lk.style.display="block";
+    return;
+  }
+  showScreen(game);
+}
+window.showScreen = showScreen;
+window.openGame = openGame;
 
 // vai buscar os pontos reais do StreamElements pelo nome de Twitch
 async function fetchPoints(twitchLogin){
@@ -379,9 +432,7 @@ async function refreshUser(){
     loginBtns.forEach(b=>{ if(b) b.style.display="none"; });
     // guarda o token para os jogos (mandado ao backend para confirmar identidade)
     window._token = session.access_token;
-    // mostra o jogo
-    $("cf-locked").style.display = "none";
-    $("cf-game").style.display = "block";
+    const lk = $("lobby-locked"); if(lk) lk.style.display = "none";
     // busca os pontos reais do StreamElements
     $("u-points").textContent = "…";
     const pts = await fetchPoints(twitchLogin);
@@ -391,8 +442,7 @@ async function refreshUser(){
     const rb = $("rl-balance"); if(rb) rb.textContent = shown.toLocaleString("pt-PT");
   }else{
     window._token = null;
-    $("cf-locked").style.display = "block";
-    $("cf-game").style.display = "none";
+    const lk = $("lobby-locked"); if(lk) lk.style.display = "block";
     $("user-box").style.display = "none";
     loginBtns.forEach(b=>{ if(b) b.style.display=""; });
   }
