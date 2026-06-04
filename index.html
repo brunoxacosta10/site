@@ -267,7 +267,21 @@ const SUPABASE_URL = "https://gtvjvaenmtdatbmgcimr.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RzjL7nd7qU4ZsOA-FhM-pQ_LkKmc14N";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// --- Backend dos pontos (StreamElements) ---
+const POINTS_API = "https://web-production-6d300.up.railway.app";
+
 const $ = id => document.getElementById(id);
+
+// vai buscar os pontos reais do StreamElements pelo nome de Twitch
+async function fetchPoints(twitchLogin){
+  if(!twitchLogin) return null;
+  try{
+    const r = await fetch(`${POINTS_API}/api/points/${encodeURIComponent(twitchLogin.toLowerCase())}`);
+    if(!r.ok) return null;
+    const d = await r.json();
+    return d.points;
+  }catch(e){ return null; }
+}
 
 // --- Entrar com Twitch ---
 async function loginTwitch(e){
@@ -289,21 +303,19 @@ async function refreshUser(){
   const loginBtns = [$("btn-login"), $("btn-login-hero")];
   if(session){
     const u = session.user;
-    // vai buscar o perfil (pontos) à base de dados
-    let profile = null;
-    try{
-      const { data } = await sb.from("profiles").select("display_name,avatar_url,points,twitch_login").eq("id", u.id).single();
-      profile = data;
-    }catch(err){}
     const meta = u.user_metadata || {};
-    const name = (profile && profile.display_name) || meta.full_name || meta.nickname || "Jogador";
-    const avatar = (profile && profile.avatar_url) || meta.avatar_url || "";
-    const pts = profile ? profile.points : 0;
+    // o nome de Twitch (login) — usado para buscar os pontos no StreamElements
+    const twitchLogin = meta.nickname || meta.preferred_username || meta.user_name || meta.name || "";
+    const name = meta.full_name || meta.name || twitchLogin || "Jogador";
+    const avatar = meta.avatar_url || meta.picture || "";
     $("u-name").textContent = name;
-    $("u-points").textContent = pts;
     if(avatar) $("u-avatar").src = avatar;
     $("user-box").style.display = "flex";
     loginBtns.forEach(b=>{ if(b) b.style.display="none"; });
+    // busca os pontos reais do StreamElements
+    $("u-points").textContent = "…";
+    const pts = await fetchPoints(twitchLogin);
+    $("u-points").textContent = (pts!=null) ? pts.toLocaleString("pt-PT") : "0";
   }else{
     $("user-box").style.display = "none";
     loginBtns.forEach(b=>{ if(b) b.style.display=""; });
