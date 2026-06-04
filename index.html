@@ -13,6 +13,7 @@
   --bg:#070510; --bg2:#0d0a1c; --panel:#120e24;
   --gold:#ffc442; --gold-2:#ff8a2b; --neon:#b14bff; --neon-2:#5d2bff;
   --cyan:#27e0ff; --txt:#ece8ff; --muted:#9a93c4; --line:rgba(177,75,255,.18);
+  --ok:#46e08a; --down:#ff6b7e;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -138,7 +139,11 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
   width:42px;height:42px;line-height:40px;font-family:"Sora";font-weight:800;margin-bottom:18px}
 
 /* reveal on load */
-.rv{opacity:0;transform:translateY(26px);animation:rise .8s forwards}
+.rl-btn{font-family:"Sora";font-weight:600;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer;
+  background:var(--panel);border:1px solid var(--line);color:var(--txt);transition:.18s}
+.rl-btn:hover{transform:translateY(-2px);border-color:var(--gold)}
+.rl-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
 @keyframes rise{to{opacity:1;transform:none}}
 .d1{animation-delay:.05s}.d2{animation-delay:.15s}.d3{animation-delay:.28s}.d4{animation-delay:.42s}.d5{animation-delay:.56s}
 </style>
@@ -250,6 +255,42 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
       <div id="cf-result" style="text-align:center;font-family:'Chakra Petch';font-size:18px;min-height:48px;display:flex;align-items:center;justify-content:center"></div>
       <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px">Saldo: <span id="cf-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
     </div>
+
+    <div style="border:1px solid var(--line);border-radius:20px;padding:30px;background:linear-gradient(160deg,var(--panel),#0c0918);max-width:620px;margin-top:24px">
+      <h3 style="font-size:22px;margin-bottom:4px">🎡 Roleta</h3>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Roleta europeia. Aposta em cor, número, par/ímpar, metade, dúzia ou coluna.</p>
+      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
+      <input id="rl-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:18px">
+
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Cores (x2) · Par/Ímpar · Metades</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+        <button class="rl-btn" data-t="color" data-v="red" style="background:rgba(220,40,60,.18);border:1px solid rgba(220,40,60,.5);color:#ff6b7e">Vermelho</button>
+        <button class="rl-btn" data-t="color" data-v="black" style="background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt)">Preto</button>
+        <button class="rl-btn" data-t="parity" data-v="even">Par</button>
+        <button class="rl-btn" data-t="parity" data-v="odd">Ímpar</button>
+        <button class="rl-btn" data-t="half" data-v="low">1-18</button>
+        <button class="rl-btn" data-t="half" data-v="high">19-36</button>
+      </div>
+
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Dúzias & Colunas (x3)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+        <button class="rl-btn" data-t="dozen" data-v="d1">1ª dúzia</button>
+        <button class="rl-btn" data-t="dozen" data-v="d2">2ª dúzia</button>
+        <button class="rl-btn" data-t="dozen" data-v="d3">3ª dúzia</button>
+        <button class="rl-btn" data-t="column" data-v="c1">Coluna 1</button>
+        <button class="rl-btn" data-t="column" data-v="c2">Coluna 2</button>
+        <button class="rl-btn" data-t="column" data-v="c3">Coluna 3</button>
+      </div>
+
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Número exato (x36)</div>
+      <div style="display:flex;gap:8px;margin-bottom:18px">
+        <input id="rl-num" type="number" min="0" max="36" placeholder="0-36" style="width:100px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt)">
+        <button class="rl-btn" data-t="number" data-v="__num__" style="background:rgba(255,196,66,.12);border:1px solid rgba(255,196,66,.4);color:var(--gold)">Apostar no número</button>
+      </div>
+
+      <div id="rl-result" style="text-align:center;font-family:'Chakra Petch';font-size:18px;min-height:48px;display:flex;align-items:center;justify-content:center"></div>
+      <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px">Saldo: <span id="rl-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
+    </div>
   </div>
 </section>
 
@@ -347,6 +388,7 @@ async function refreshUser(){
     const shown = (pts!=null) ? pts : 0;
     $("u-points").textContent = shown.toLocaleString("pt-PT");
     $("cf-balance").textContent = shown.toLocaleString("pt-PT");
+    const rb = $("rl-balance"); if(rb) rb.textContent = shown.toLocaleString("pt-PT");
   }else{
     window._token = null;
     $("cf-locked").style.display = "block";
@@ -393,6 +435,48 @@ async function playCoinflip(choice){
 }
 $("cf-heads").addEventListener("click", ()=>playCoinflip("heads"));
 $("cf-tails").addEventListener("click", ()=>playCoinflip("tails"));
+
+// --- Roleta ---
+async function playRoulette(betType, betValue){
+  if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
+  const bet = parseInt($("rl-bet").value) || 0;
+  if(bet < 1){ $("rl-result").textContent = "Aposta pelo menos 1 ponto."; return; }
+  let value = betValue;
+  if(betValue === "__num__"){
+    value = parseInt($("rl-num").value);
+    if(isNaN(value) || value<0 || value>36){ $("rl-result").textContent = "Escolhe um número de 0 a 36."; return; }
+  }
+  const btns = document.querySelectorAll(".rl-btn");
+  btns.forEach(b=>b.disabled=true);
+  $("rl-result").innerHTML = '<span style="color:var(--muted)">🎡 a rodar…</span>';
+  try{
+    const r = await fetch(`${POINTS_API}/api/play/roulette`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+window._token },
+      body: JSON.stringify({ bet, bet_type: betType, bet_value: value })
+    });
+    const d = await r.json();
+    if(!r.ok){ $("rl-result").innerHTML = `<span style="color:var(--down)">${d.error||"erro"}</span>`; }
+    else{
+      const cores = {red:"Vermelho",black:"Preto",green:"Verde"};
+      const corTxt = cores[d.color] || d.color;
+      const corHex = d.color==="red" ? "#ff6b7e" : (d.color==="green" ? "#27e0ff" : "#ece8ff");
+      let msg = `Saiu <b style="color:${corHex}">${d.number} (${corTxt})</b> — `;
+      if(d.won) msg += `<span style="color:var(--ok)">ganhaste +${d.delta} 🎉</span>`;
+      else msg += `<span style="color:var(--down)">perdeste ${Math.abs(d.delta)} 😢</span>`;
+      $("rl-result").innerHTML = msg;
+      $("rl-balance").textContent = d.balance.toLocaleString("pt-PT");
+      $("cf-balance").textContent = d.balance.toLocaleString("pt-PT");
+      $("u-points").textContent = d.balance.toLocaleString("pt-PT");
+    }
+  }catch(e){
+    $("rl-result").innerHTML = '<span style="color:var(--down)">falha de ligação</span>';
+  }
+  btns.forEach(b=>b.disabled=false);
+}
+document.querySelectorAll(".rl-btn").forEach(b=>{
+  b.addEventListener("click", ()=>playRoulette(b.dataset.t, b.dataset.v));
+});
 
 // reage a login/logout e ao voltar da Twitch
 sb.auth.onAuthStateChange(()=>refreshUser());
