@@ -152,7 +152,15 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
       <a href="#watch">Ao Vivo</a>
       <a href="#promos">Promoções</a>
       <a href="#points">Pontos</a>
-      <a href="#" class="btn btn-tw">▶ Entrar com Twitch</a>
+      <a href="#" class="btn btn-tw" id="btn-login">▶ Entrar com Twitch</a>
+      <div id="user-box" style="display:none;align-items:center;gap:12px">
+        <span style="display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);padding:6px 13px 6px 6px;border-radius:30px">
+          <img id="u-avatar" src="" alt="" style="width:30px;height:30px;border-radius:50%;object-fit:cover">
+          <span id="u-name" style="font-size:14px;font-weight:600"></span>
+          <span style="color:var(--gold);font-weight:700;font-family:'Chakra Petch';font-size:14px">★ <span id="u-points">0</span></span>
+        </span>
+        <a href="#" id="btn-logout" style="font-size:13px;color:var(--muted)">Sair</a>
+      </div>
     </div>
   </div>
 </nav>
@@ -165,7 +173,7 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
   <h1 class="rv d1">A casa do<br><span class="grad">JIGADORES</span></h1>
   <p class="rv d2">Streams ao vivo, promoções exclusivas com os melhores parceiros, sorteios para a comunidade e uma loja de pontos só para quem segue.</p>
   <div class="hero-cta rv d3">
-    <a href="#" class="btn btn-tw btn-xl">▶ Entrar com Twitch</a>
+    <a href="#" class="btn btn-tw btn-xl" id="btn-login-hero">▶ Entrar com Twitch</a>
     <a href="#promos" class="btn btn-ghost btn-xl">Ver promoções</a>
   </div>
   <div class="stats rv d4">
@@ -251,6 +259,65 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
     © 2026 Jigadores. Todos os direitos reservados.
   </p>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// --- Ligação à Supabase ---
+const SUPABASE_URL = "https://gtvjvaenmtdatbmgcimr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_RzjL7nd7qU4ZsOA-FhM-pQ_LkKmc14N";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+
+// --- Entrar com Twitch ---
+async function loginTwitch(e){
+  if(e) e.preventDefault();
+  await sb.auth.signInWithOAuth({
+    provider: "twitch",
+    options: { redirectTo: window.location.origin }
+  });
+}
+async function logout(e){
+  if(e) e.preventDefault();
+  await sb.auth.signOut();
+  window.location.reload();
+}
+
+// --- Mostrar estado (logado / deslogado) ---
+async function refreshUser(){
+  const { data:{ session } } = await sb.auth.getSession();
+  const loginBtns = [$("btn-login"), $("btn-login-hero")];
+  if(session){
+    const u = session.user;
+    // vai buscar o perfil (pontos) à base de dados
+    let profile = null;
+    try{
+      const { data } = await sb.from("profiles").select("display_name,avatar_url,points,twitch_login").eq("id", u.id).single();
+      profile = data;
+    }catch(err){}
+    const meta = u.user_metadata || {};
+    const name = (profile && profile.display_name) || meta.full_name || meta.nickname || "Jogador";
+    const avatar = (profile && profile.avatar_url) || meta.avatar_url || "";
+    const pts = profile ? profile.points : 0;
+    $("u-name").textContent = name;
+    $("u-points").textContent = pts;
+    if(avatar) $("u-avatar").src = avatar;
+    $("user-box").style.display = "flex";
+    loginBtns.forEach(b=>{ if(b) b.style.display="none"; });
+  }else{
+    $("user-box").style.display = "none";
+    loginBtns.forEach(b=>{ if(b) b.style.display=""; });
+  }
+}
+
+// liga os botões
+[$("btn-login"), $("btn-login-hero")].forEach(b=>{ if(b) b.addEventListener("click", loginTwitch); });
+$("btn-logout").addEventListener("click", logout);
+
+// reage a login/logout e ao voltar da Twitch
+sb.auth.onAuthStateChange(()=>refreshUser());
+refreshUser();
+</script>
 
 </body>
 </html>
