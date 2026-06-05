@@ -140,6 +140,17 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 
 /* reveal on load */
 .game-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+/* ===== MOEDA 3D (coinflip) ===== */
+.coin-stage{display:flex;justify-content:center;align-items:center;height:160px;margin-bottom:18px;perspective:1000px}
+.coin{position:relative;width:120px;height:120px;transform-style:preserve-3d;transform:rotateY(0deg)}
+.coin-face{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:"Sora";font-weight:800;font-size:20px;backface-visibility:hidden;
+  box-shadow:0 8px 26px rgba(0,0,0,.5),inset 0 0 0 5px rgba(0,0,0,.15)}
+.coin-heads{background:radial-gradient(circle at 35% 30%,#ffe08a,#ffc442 55%,#e0962a);color:#7a4e10}
+.coin-tails{background:radial-gradient(circle at 35% 30%,#d9a6ff,#b14bff 55%,#5d2bff);color:#fff;transform:rotateY(180deg)}
+.coin.flipping{animation:coinSpin .12s linear infinite}
+@keyframes coinSpin{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+
 @media(max-width:880px){.game-cards{grid-template-columns:1fr}}
 .game-card{border:1px solid var(--line);border-radius:20px;padding:28px;background:linear-gradient(160deg,var(--panel),#0c0918);
   cursor:pointer;transition:.25s;text-align:left}
@@ -332,6 +343,12 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
   <h2 class="s-title" style="margin-top:18px">🪙 Coinflip</h2>
   <div style="border:1px solid var(--line);border-radius:20px;padding:30px;background:linear-gradient(160deg,var(--panel),#0c0918);max-width:460px;margin-top:20px">
     <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Cara ou coroa. Acertas, dobras a aposta. Falhas, perde-la.</p>
+    <div class="coin-stage">
+      <div id="coin" class="coin">
+        <div class="coin-face coin-heads">CARA</div>
+        <div class="coin-face coin-tails">COROA</div>
+      </div>
+    </div>
     <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
     <input id="cf-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:16px">
     <div style="display:flex;gap:12px;margin-bottom:18px">
@@ -539,12 +556,25 @@ async function refreshUser(){
 $("btn-logout").addEventListener("click", logout);
 
 // --- Coinflip ---
+function setCoinFace(face){
+  // face final: heads = 0deg, tails = 180deg (+ voltas para efeito)
+  const coin = $("coin");
+  const turns = 5;
+  const deg = turns*360 + (face==="tails" ? 180 : 0);
+  coin.style.transition = "transform 1.6s cubic-bezier(.2,.7,.2,1)";
+  coin.style.transform = `rotateY(${deg}deg)`;
+}
 async function playCoinflip(choice){
   if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
   const bet = parseInt($("cf-bet").value) || 0;
   if(bet < 1){ $("cf-result").textContent = "Aposta pelo menos 1 ponto."; return; }
   const hBtn=$("cf-heads"), tBtn=$("cf-tails");
   hBtn.disabled=tBtn.disabled=true;
+  // arranca a moeda a girar rápido
+  const coin = $("coin");
+  coin.style.transition = "none";
+  coin.style.transform = "rotateY(0deg)";
+  coin.classList.add("flipping");
   $("cf-result").innerHTML = '<span style="color:var(--muted)">🪙 a girar…</span>';
   try{
     const r = await fetch(`${POINTS_API}/api/play/coinflip`, {
@@ -553,8 +583,16 @@ async function playCoinflip(choice){
       body: JSON.stringify({ bet, choice })
     });
     const d = await r.json();
-    if(!r.ok){ $("cf-result").innerHTML = `<span style="color:var(--down)">${d.error||"erro"}</span>`; }
-    else{
+    if(!r.ok){
+      coin.classList.remove("flipping");
+      $("cf-result").innerHTML = `<span style="color:var(--down)">${d.error||"erro"}</span>`;
+      hBtn.disabled=tBtn.disabled=false; return;
+    }
+    // pára o giro rápido e faz a moeda aterrar na face certa
+    coin.classList.remove("flipping");
+    setCoinFace(d.result);
+    // mostra o resultado depois da aterragem (1.6s)
+    setTimeout(()=>{
       const saiu = d.result==="heads" ? "Cara" : "Coroa";
       if(d.won){
         $("cf-result").innerHTML = `<span style="color:var(--ok)">Saiu ${saiu}! Ganhaste +${d.delta} 🎉</span>`;
@@ -563,11 +601,13 @@ async function playCoinflip(choice){
       }
       $("cf-balance").textContent = d.balance.toLocaleString("pt-PT");
       $("u-points").textContent = d.balance.toLocaleString("pt-PT");
-    }
+      hBtn.disabled=tBtn.disabled=false;
+    }, 1650);
   }catch(e){
+    coin.classList.remove("flipping");
     $("cf-result").innerHTML = '<span style="color:var(--down)">falha de ligação</span>';
+    hBtn.disabled=tBtn.disabled=false;
   }
-  hBtn.disabled=tBtn.disabled=false;
 }
 $("cf-heads").addEventListener("click", ()=>playCoinflip("heads"));
 $("cf-tails").addEventListener("click", ()=>playCoinflip("tails"));
