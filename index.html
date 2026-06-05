@@ -150,6 +150,27 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 .coin-tails{background:radial-gradient(circle at 35% 30%,#d9a6ff,#b14bff 55%,#5d2bff);color:#fff;transform:rotateY(180deg)}
 .coin.flipping{animation:coinSpin .12s linear infinite}
 @keyframes coinSpin{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+/* ===== BLACKJACK ===== */
+.bj-table{background:radial-gradient(ellipse at 50% 0%,#1a4d3a,#0d3326 70%,#08231a);
+  border:1px solid #2a5f48;border-radius:20px;padding:30px 24px;margin-top:20px;min-height:300px}
+.bj-area{margin-bottom:26px}
+.bj-label{font-family:"Chakra Petch";font-size:13px;color:#cfe8dd;letter-spacing:.08em;margin-bottom:10px;text-transform:uppercase}
+.bj-label span{color:var(--gold);font-weight:700;margin-left:6px}
+.bj-cards{display:flex;gap:8px;flex-wrap:wrap;min-height:88px}
+.bj-hand{display:flex;gap:8px;flex-wrap:wrap;padding:8px;border-radius:12px;margin-bottom:8px}
+.bj-hand.active{outline:2px solid var(--gold);outline-offset:2px}
+.bj-hand-info{font-size:12px;color:#cfe8dd;margin-bottom:4px}
+.card{width:60px;height:84px;border-radius:8px;background:#fff;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;font-family:"Sora";font-weight:800;font-size:22px;color:#1a1a1a;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);position:relative;animation:dealCard .3s ease}
+.card.red{color:#c62836}
+.card.back{background:repeating-linear-gradient(45deg,#5d2bff,#5d2bff 6px,#b14bff 6px,#b14bff 12px);color:transparent}
+.card .suit{font-size:16px;margin-top:-2px}
+@keyframes dealCard{from{transform:translateY(-20px) scale(.8);opacity:0}to{transform:none;opacity:1}}
+.bj-msg{text-align:center;font-family:"Sora";font-weight:800;font-size:22px;min-height:30px;margin-top:6px}
+.bj-act{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--txt);flex:1;justify-content:center;min-width:90px}
+.bj-act:hover{border-color:var(--gold)}
+.bj-act:disabled{opacity:.35;cursor:not-allowed}
 
 @media(max-width:880px){.game-cards{grid-template-columns:1fr}}
 .game-card{border:1px solid var(--line);border-radius:20px;padding:28px;background:linear-gradient(160deg,var(--panel),#0c0918);
@@ -159,8 +180,6 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 .game-card h3{font-size:23px;margin-bottom:8px}
 .game-card p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:18px;font-weight:300}
 .game-card .gc-go{font-family:"Chakra Petch";font-weight:700;color:var(--gold);font-size:14px}
-.game-card.gc-soon{cursor:default;opacity:.7}
-.game-card.gc-soon:hover{transform:none;border-color:var(--line);box-shadow:none}
 
 /* ===== ROLETA REALISTA ===== */
 .roul-layout{display:grid;grid-template-columns:340px 1fr;gap:30px;margin-top:24px;align-items:center}
@@ -326,11 +345,11 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
       <p>Roleta europeia. Cores, números, dúzias e mais.</p>
       <span class="gc-go">Jogar →</span>
     </div>
-    <div class="game-card gc-soon">
+    <div class="game-card" onclick="openGame('blackjack')">
       <div class="gc-ic">🃏</div>
       <h3>Blackjack</h3>
       <p>Chega a 21 sem rebentar. Contra a casa.</p>
-      <span class="gc-go" style="color:var(--cyan)">Em breve</span>
+      <span class="gc-go">Jogar →</span>
     </div>
   </div>
 </section>
@@ -433,6 +452,48 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 </section>
 </div><!-- /screen-roulette -->
 
+<!-- ECRÃ: BLACKJACK -->
+<div id="screen-blackjack" style="display:none">
+<section class="wrap" style="padding-top:50px">
+  <a href="#" onclick="showScreen('lobby');return false" style="color:var(--muted);font-size:14px">← Voltar aos jogos</a>
+  <h2 class="s-title" style="margin-top:18px">🃏 Blackjack</h2>
+
+  <div class="bj-table">
+    <!-- dealer -->
+    <div class="bj-area">
+      <div class="bj-label">Dealer <span id="bj-dealer-val"></span></div>
+      <div id="bj-dealer-cards" class="bj-cards"></div>
+    </div>
+    <!-- jogador -->
+    <div class="bj-area">
+      <div class="bj-label">Tu <span id="bj-player-val"></span></div>
+      <div id="bj-player-hands"></div>
+    </div>
+    <div id="bj-msg" class="bj-msg"></div>
+  </div>
+
+  <!-- controlos de aposta (antes de começar) -->
+  <div id="bj-betbox" style="border:1px solid var(--line);border-radius:16px;padding:24px;background:var(--panel);max-width:420px;margin-top:20px">
+    <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
+    <input id="bj-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:16px">
+    <button class="btn" id="bj-deal" style="width:100%;justify-content:center;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206;font-size:16px">Repartir cartas</button>
+    <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:12px">Saldo: <span id="bj-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
+  </div>
+
+  <!-- ações durante o jogo -->
+  <div id="bj-actions" style="display:none;gap:10px;margin-top:20px;flex-wrap:wrap;max-width:560px">
+    <button class="btn bj-act" id="bj-hit">Pedir carta</button>
+    <button class="btn bj-act" id="bj-stand">Ficar</button>
+    <button class="btn bj-act" id="bj-double">Dobrar</button>
+    <button class="btn bj-act" id="bj-split">Dividir</button>
+    <button class="btn bj-act" id="bj-insurance">Seguro</button>
+  </div>
+  <div id="bj-again" style="display:none;margin-top:20px">
+    <button class="btn" id="bj-newgame" style="background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206">Jogar outra vez</button>
+  </div>
+</section>
+</div><!-- /screen-blackjack -->
+
 <footer class="wrap">
   <div class="age">18+</div>
   <div class="foot-soc">
@@ -468,7 +529,7 @@ let rouletteBuilt = false;
 let spinning = false;
 
 // --- Troca de ecrãs (home / lobby / jogos) ---
-const SCREENS = ["home","lobby","coinflip","roulette"];
+const SCREENS = ["home","lobby","coinflip","roulette","blackjack"];
 function showScreen(name){
   SCREENS.forEach(s=>{
     const el = $("screen-"+s);
@@ -543,6 +604,7 @@ async function refreshUser(){
     $("u-points").textContent = shown.toLocaleString("pt-PT");
     $("cf-balance").textContent = shown.toLocaleString("pt-PT");
     const rb = $("rl-balance"); if(rb) rb.textContent = shown.toLocaleString("pt-PT");
+    const bb = $("bj-balance"); if(bb) bb.textContent = shown.toLocaleString("pt-PT");
   }else{
     window._token = null;
     const lk = $("lobby-locked"); if(lk) lk.style.display = "block";
@@ -611,6 +673,103 @@ async function playCoinflip(choice){
 }
 $("cf-heads").addEventListener("click", ()=>playCoinflip("heads"));
 $("cf-tails").addEventListener("click", ()=>playCoinflip("tails"));
+
+// --- BLACKJACK ---
+let bjGame = null;
+function cardHtml(c){
+  if(c.r==="?") return '<div class="card back"></div>';
+  const red = (c.s==="♥"||c.s==="♦");
+  return `<div class="card ${red?'red':''}">${c.r}<span class="suit">${c.s}</span></div>`;
+}
+function renderBlackjack(d){
+  bjGame = d;
+  // dealer
+  $("bj-dealer-cards").innerHTML = d.dealer.cards.map(cardHtml).join("");
+  $("bj-dealer-val").textContent = d.dealer.value!=null ? d.dealer.value : "";
+  // mãos do jogador
+  const multi = d.hands.length>1;
+  $("bj-player-hands").innerHTML = d.hands.map((h,i)=>{
+    const active = (d.status==="playing" && i===d.active_hand);
+    const info = multi ? `<div class="bj-hand-info">Mão ${i+1} · aposta ${h.bet}${h.result?' · '+resultWord(h.result):''}</div>` : "";
+    return `${info}<div class="bj-hand ${active?'active':''}">${h.cards.map(cardHtml).join("")}</div>`;
+  }).join("");
+  // valor da mão ativa (ou primeira)
+  const ph = d.hands[d.active_hand] || d.hands[0];
+  $("bj-player-val").textContent = ph.value;
+  // saldo
+  if(d.balance!=null){
+    const b = d.balance.toLocaleString("pt-PT");
+    $("bj-balance").textContent=b; $("cf-balance").textContent=b;
+    $("u-points").textContent=b;
+    const rb=$("rl-balance"); if(rb) rb.textContent=b;
+  }
+  if(d.status==="playing"){
+    $("bj-betbox").style.display="none";
+    $("bj-actions").style.display="flex";
+    $("bj-again").style.display="none";
+    $("bj-msg").textContent="";
+    // ativa/desativa ações conforme permitido
+    $("bj-double").disabled = !d.can_double;
+    $("bj-split").disabled = !d.can_split;
+    $("bj-insurance").disabled = !d.can_insurance;
+  }else{
+    // terminou
+    $("bj-actions").style.display="none";
+    $("bj-again").style.display="block";
+    showBjResult(d);
+  }
+}
+function resultWord(r){
+  return {win:"Ganhou",lose:"Perdeu",push:"Empate",bust:"Rebentou",blackjack:"Blackjack!"}[r]||r;
+}
+function showBjResult(d){
+  const delta = d.total_delta;
+  let txt, col;
+  if(delta>0){ txt=`Ganhaste +${delta} 🎉`; col="var(--ok)"; }
+  else if(delta<0){ txt=`Perdeste ${Math.abs(delta)} 😢`; col="var(--down)"; }
+  else { txt="Empate — recuperaste a aposta"; col="var(--muted)"; }
+  $("bj-msg").innerHTML = `<span style="color:${col}">${txt}</span>`;
+}
+async function bjCall(path, body){
+  const r = await fetch(`${POINTS_API}/api/play/blackjack/${path}`, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+window._token },
+    body: JSON.stringify(body||{})
+  });
+  const d = await r.json();
+  if(!r.ok){ $("bj-msg").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return null; }
+  return d;
+}
+async function bjStart(){
+  if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
+  const bet = parseInt($("bj-bet").value)||0;
+  if(bet<1){ $("bj-msg").textContent="Aposta pelo menos 1 ponto."; return; }
+  $("bj-deal").disabled=true;
+  const d = await bjCall("start",{bet});
+  $("bj-deal").disabled=false;
+  if(d) renderBlackjack(d);
+}
+async function bjAction(path){
+  if(!bjGame) return;
+  document.querySelectorAll(".bj-act").forEach(b=>b.disabled=true);
+  const d = await bjCall(path,{game_id:bjGame.game_id});
+  if(d) renderBlackjack(d);
+}
+$("bj-deal").addEventListener("click", bjStart);
+$("bj-hit").addEventListener("click", ()=>bjAction("hit"));
+$("bj-stand").addEventListener("click", ()=>bjAction("stand"));
+$("bj-double").addEventListener("click", ()=>bjAction("double"));
+$("bj-split").addEventListener("click", ()=>bjAction("split"));
+$("bj-insurance").addEventListener("click", ()=>bjAction("insurance"));
+$("bj-newgame").addEventListener("click", ()=>{
+  $("bj-betbox").style.display="block";
+  $("bj-again").style.display="none";
+  $("bj-msg").textContent="";
+  $("bj-dealer-cards").innerHTML="";
+  $("bj-player-hands").innerHTML="";
+  $("bj-dealer-val").textContent="";
+  $("bj-player-val").textContent="";
+});
 
 // --- ROLETA REALISTA ---
 // ordem real da roda europeia (sentido horário a partir do 0)
