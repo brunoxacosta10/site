@@ -76,11 +76,30 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .topbar{position:sticky;top:0;z-index:50;height:72px;display:flex;align-items:center;gap:18px;
   padding:0 30px;backdrop-filter:blur(14px);background:linear-gradient(180deg,rgba(7,5,16,.9),rgba(7,5,16,.55));
   border-bottom:1px solid var(--line)}
-.search{flex:1;max-width:440px;display:flex;align-items:center;gap:10px;background:var(--panel);
-  border:1px solid var(--line);border-radius:12px;padding:11px 16px;color:var(--muted)}
+.search-wrap{position:relative;flex:1;max-width:460px}
+.search{display:flex;align-items:center;gap:10px;background:var(--panel);
+  border:1px solid var(--line);border-radius:12px;padding:11px 16px;color:var(--muted);transition:.18s}
+.search:focus-within{border-color:rgba(177,75,255,.5);box-shadow:0 0 0 3px rgba(177,75,255,.1)}
 .search svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
 .search input{background:none;border:none;outline:none;color:var(--txt);font-family:"Outfit";font-size:14px;width:100%}
 .search input::placeholder{color:var(--muted)}
+.search-drop{position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:100;
+  background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);padding:8px;display:none;max-height:72vh;overflow-y:auto}
+.search-drop.show{display:block}
+.sd-group-title{font-family:"Chakra Petch";font-size:11px;letter-spacing:.1em;color:var(--muted);
+  text-transform:uppercase;padding:12px 12px 6px}
+.sd-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:.14s}
+.sd-item:hover,.sd-item.sel{background:rgba(177,75,255,.14)}
+.sd-ic{width:32px;height:32px;border-radius:9px;background:rgba(177,75,255,.12);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;color:var(--neon)}
+.sd-ic svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9}
+.sd-name{font-size:14px;font-weight:500;flex:1}
+.sd-name mark{background:rgba(255,196,66,.28);color:var(--gold);border-radius:3px;padding:0 2px}
+.sd-tag{font-family:"Chakra Petch";font-size:10px;color:var(--muted);background:rgba(255,255,255,.05);
+  border:1px solid var(--line);padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
+.sd-empty{padding:26px 12px;text-align:center;color:var(--muted);font-size:14px}
+.sd-empty span{display:block;font-size:26px;margin-bottom:8px;opacity:.6}
 .top-right{margin-left:auto;display:flex;align-items:center;gap:14px}
 .points-pill{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);
   padding:6px 14px 6px 6px;border-radius:30px}
@@ -391,9 +410,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="hamb" onclick="openSidebar()"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></div>
-    <div class="search">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
-      <input type="text" placeholder="Procurar…">
+    <div class="search-wrap">
+      <div class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        <input type="text" id="search-input" placeholder="Procurar páginas, jogos, casinos…" autocomplete="off">
+      </div>
+      <div class="search-drop" id="search-drop"></div>
     </div>
     <div class="top-right">
       <div class="points-pill" id="user-box" style="display:none">
@@ -1189,8 +1211,100 @@ $("rl-clear").addEventListener("click", ()=>{ if(!spinning) clearBets(); });
 $("rl-repeat").addEventListener("click", repeatBets);
 $("rl-double").addEventListener("click", doubleBets);
 
+// ====== PESQUISA (dropdown como o godmota) ======
+const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const SD_ICONS = {
+  home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
+  casinos:'<svg viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 010-4h12v4"/><path d="M4 6v12a2 2 0 002 2h14v-4"/></svg>',
+  ranking:'<svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 01-10 0z"/></svg>',
+  promos:'<svg viewBox="0 0 24 24"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7"/></svg>',
+};
+let SEARCH_IDX = [];
+let sdResults = [], sdSel = -1;
+
+function buildSearchIndex(){
+  const idx = [
+    {group:"Páginas", html:SD_ICONS.home,    name:"Início",            action:()=>go("home")},
+    {group:"Páginas", html:SD_ICONS.casinos, name:"Casinos & Ofertas",  action:()=>go("casinos")},
+    {group:"Páginas", html:SD_ICONS.ranking, name:"Ranking",            action:()=>go("leaderboard")},
+    {group:"Páginas", html:SD_ICONS.promos,  name:"Promoções",          action:()=>goToPromos()},
+    {group:"Jogos", emoji:"🪙", name:"Coinflip",  action:()=>openGame("coinflip")},
+    {group:"Jogos", emoji:"🎡", name:"Roleta",    action:()=>openGame("roulette")},
+    {group:"Jogos", emoji:"🃏", name:"Blackjack", action:()=>openGame("blackjack")},
+  ];
+  // casinos vêm do OFFERS (quando adicionas marcas, aparecem aqui sozinhas)
+  OFFERS.forEach(o=>{
+    idx.push({group:"Casinos", emoji:"🎰", name:o.name, tag:"Oferta",
+      action:()=>{ go("casinos"); }});
+  });
+  return idx;
+}
+function sdHighlight(name, q){
+  const i = norm(name).indexOf(norm(q));
+  if(i<0 || !q) return name;
+  return name.slice(0,i)+"<mark>"+name.slice(i,i+q.length)+"</mark>"+name.slice(i+q.length);
+}
+function runSearch(q){
+  const drop = $("search-drop");
+  if(!q || !q.trim()){ drop.classList.remove("show"); drop.innerHTML=""; sdResults=[]; sdSel=-1; return; }
+  const matches = SEARCH_IDX.filter(it => norm(it.name).includes(norm(q)));
+  sdSel = -1;
+  if(matches.length===0){
+    drop.innerHTML = `<div class="sd-empty"><span>🔍</span>Nada encontrado para "${q}"</div>`;
+    drop.classList.add("show"); sdResults=[]; return;
+  }
+  // agrupa preservando a ordem dos grupos
+  const groups = [];
+  matches.forEach(it=>{ let g=groups.find(x=>x.name===it.group); if(!g){g={name:it.group,items:[]};groups.push(g);} g.items.push(it); });
+  sdResults = groups.flatMap(g=>g.items); // ordem visual = ordem dos índices
+  let html = "", flat = 0;
+  groups.forEach(g=>{
+    html += `<div class="sd-group-title">${g.name}</div>`;
+    g.items.forEach(it=>{
+      const ic = it.html ? it.html : (it.emoji||"•");
+      const tag = it.tag ? `<span class="sd-tag">${it.tag}</span>` : "";
+      html += `<div class="sd-item" data-i="${flat}"><span class="sd-ic">${ic}</span><span class="sd-name">${sdHighlight(it.name,q)}</span>${tag}</div>`;
+      flat++;
+    });
+  });
+  drop.innerHTML = html;
+  drop.classList.add("show");
+  drop.querySelectorAll(".sd-item").forEach(el=>{
+    el.addEventListener("click", ()=>pickResult(parseInt(el.dataset.i)));
+  });
+}
+function pickResult(i){
+  const it = sdResults[i];
+  if(!it) return;
+  $("search-input").value = "";
+  $("search-drop").classList.remove("show");
+  it.action();
+}
+function sdMove(dir){
+  const items = $("search-drop").querySelectorAll(".sd-item");
+  if(!items.length) return;
+  sdSel = (sdSel + dir + items.length) % items.length;
+  items.forEach((el,j)=>el.classList.toggle("sel", j===sdSel));
+  items[sdSel].scrollIntoView({block:"nearest"});
+}
+function initSearch(){
+  SEARCH_IDX = buildSearchIndex();
+  const inp = $("search-input");
+  if(!inp) return;
+  inp.addEventListener("input", e=>runSearch(e.target.value));
+  inp.addEventListener("focus", e=>{ if(e.target.value) runSearch(e.target.value); });
+  inp.addEventListener("keydown", e=>{
+    if(e.key==="ArrowDown"){ e.preventDefault(); sdMove(1); }
+    else if(e.key==="ArrowUp"){ e.preventDefault(); sdMove(-1); }
+    else if(e.key==="Enter"){ e.preventDefault(); if(sdSel>=0) pickResult(sdSel); else if(sdResults.length) pickResult(0); }
+    else if(e.key==="Escape"){ $("search-drop").classList.remove("show"); inp.blur(); }
+  });
+  document.addEventListener("click", e=>{ if(!e.target.closest(".search-wrap")) $("search-drop").classList.remove("show"); });
+}
+
 // ====== ARRANQUE ======
 renderOffers();
+initSearch();
 if(sb){ sb.auth.onAuthStateChange(()=>refreshUser()); }
 refreshUser();
 </script>
