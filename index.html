@@ -519,13 +519,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
       </div>
     </div>
 
-    <!-- secção promos (âncora para goToPromos) -->
-    <div class="sec" id="promos">
-      <div class="eyebrow">Parceiros oficiais</div>
-      <h2 class="s-title">Promoções exclusivas</h2>
-      <p class="s-sub">Ofertas negociadas para a comunidade. Só para maiores de 18 anos — joga com responsabilidade.</p>
-      <div class="offer-grid" id="promos-grid"></div>
-    </div>
   </div><!-- /screen-home -->
 
   <!-- ===== ECRÃ: CASINOS & OFERTAS ===== -->
@@ -802,8 +795,6 @@ function renderOffers(){
     offerCard({name:"?", soon:true}) + offerCard({name:"?", soon:true});
   const fr = $("featured-row"); if(fr) fr.innerHTML = featured;
   const fc = $("feat-count"); if(fc) fc.textContent = OFFERS.length;
-  // home promos grid
-  const pg = $("promos-grid"); if(pg) pg.innerHTML = cards;
   // casinos page (real + em breve para encher a grelha)
   const cg = $("casinos-grid");
   if(cg) cg.innerHTML = cards + offerCard({name:"?", soon:true}) + offerCard({name:"?", soon:true}) + offerCard({name:"?", soon:true});
@@ -829,13 +820,8 @@ function go(name){
   if(name==="leaderboard") loadLeaderboard();
   closeSidebar();
 }
-// ir para a secção de promoções dentro do home
-function goToPromos(){
-  showScreen("home");
-  document.querySelectorAll(".nav-item, .mob-item").forEach(it=>it.classList.toggle("active", it.dataset.nav==="promos"));
-  requestAnimationFrame(()=>{ setTimeout(()=>{ const el=$("promos"); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); }, 60); });
-  closeSidebar();
-}
+// "Promoções" abre a página Casinos & Ofertas
+function goToPromos(){ go("casinos"); }
 window.go = go; window.goToPromos = goToPromos; window.showScreen = showScreen;
 
 // abrir um jogo (só com login)
