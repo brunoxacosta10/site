@@ -144,6 +144,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .hb-live{display:inline-flex;align-items:center;gap:9px;font-family:"Chakra Petch";font-size:12px;letter-spacing:.06em;
   color:#fff;background:rgba(255,60,90,.16);border:1px solid rgba(255,60,90,.4);padding:7px 14px;border-radius:30px;width:fit-content;margin-bottom:18px;position:relative;z-index:2}
 .live-dot{width:8px;height:8px;border-radius:50%;background:#ff3c5a;box-shadow:0 0 12px #ff3c5a;animation:pulse 1.2s infinite}
+.hb-live.off{color:#9a93c4}
+.hb-live.off .live-dot{background:#6f688f;box-shadow:none;animation:none}
 .hero-banner h1{font-size:clamp(34px,4.5vw,52px);line-height:1.02;letter-spacing:-.02em;position:relative;z-index:2}
 .hero-banner h1 .grad{background:linear-gradient(90deg,var(--gold),var(--gold-2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero-banner p{font-size:clamp(15px,1.6vw,18px);color:#c9c2e8;max-width:480px;margin:18px 0 28px;line-height:1.6;font-weight:300;position:relative;z-index:2}
@@ -466,7 +468,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
   <!-- ===== ECRÃ: HOME ===== -->
   <div id="screen-home">
     <div class="hero-banner sec">
-      <div class="hb-live"><span class="live-dot"></span> AO VIVO AGORA · vê o stream</div>
+      <div class="hb-live" id="hero-live"><span class="live-dot"></span> AO VIVO AGORA · vê o stream</div>
       <h1>A casa do <span class="grad">JIGADORES</span></h1>
       <p>Streams ao vivo, promoções exclusivas com os melhores parceiros, e jogos com os teus pontos do canal — só por diversão.</p>
       <div class="hb-cta">
@@ -491,7 +493,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
     <div class="sec" id="watch">
       <div class="eyebrow">Em direto</div>
       <h2 class="s-title">Vê onde quiseres</h2>
-      <p class="s-sub">Acompanha as streams ao vivo e nunca percas uma sessão.</p>
+      <p class="s-sub" id="watch-sub">Acompanha as streams ao vivo e nunca percas uma sessão.</p>
       <div class="live-grid">
         <div class="player" id="twitch-player">
           <div class="player-fallback">
@@ -1368,7 +1370,35 @@ function initSearch(){
 // ====== ARRANQUE ======
 renderOffers();
 initSearch();
-buildTwitchEmbed();
+// ====== estado AO VIVO (Twitch) — automático ======
+let _liveState;
+function setLiveUI(isLive, st){
+  const badge=$("hero-live"), box=$("twitch-player"), wsub=$("watch-sub");
+  if(isLive){
+    if(badge){
+      badge.classList.remove("off");
+      const v=(st && typeof st.viewers==="number" && st.viewers>0) ? (" · "+st.viewers.toLocaleString("pt-PT")+" a ver") : " · vê o stream";
+      badge.innerHTML='<span class="live-dot"></span> AO VIVO AGORA'+v;
+    }
+    if(wsub) wsub.textContent=(st && st.title) ? ("▶ "+st.title) : "Acompanha as streams ao vivo e nunca percas uma sessão.";
+    if(box && !box.querySelector("iframe")) buildTwitchEmbed();
+  } else {
+    if(badge){ badge.classList.add("off"); badge.innerHTML='<span class="live-dot"></span> Offline · segue na Twitch'; }
+    if(wsub) wsub.textContent="Acompanha as streams ao vivo e nunca percas uma sessão.";
+    if(box && (_liveState!==false || !box.querySelector(".off-state"))){
+      box.innerHTML='<div class="player-fallback off-state"><div class="play"></div><div>Não está em direto agora.<br><a href="https://www.twitch.tv/'+TWITCH_CHANNEL+'" target="_blank" rel="noopener" style="color:var(--gold);font-weight:600">Segue na Twitch →</a></div></div>';
+    }
+  }
+  _liveState=isLive;
+}
+async function refreshLive(){
+  let st=null;
+  try{ const r=await fetch(POINTS_API+"/api/live",{cache:"no-store"}); st=await r.json(); }catch(e){}
+  if(!st || st.configured===false){ setLiveUI(true, null); return; }
+  setLiveUI(!!st.live, st);
+}
+refreshLive();
+setInterval(refreshLive, 60000);
 if(sb){ sb.auth.onAuthStateChange(()=>refreshUser()); }
 refreshUser();
 </script>
