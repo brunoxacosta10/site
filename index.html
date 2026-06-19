@@ -248,7 +248,7 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
     <div class="nav-links">
       <a href="#" onclick="showScreen('home');return false">Início</a>
       <a href="#" onclick="showScreen('lobby');return false">Jogos</a>
-      <a href="#" onclick="showScreen('home');setTimeout(()=>location.hash='#promos',50);return false">Promoções</a>
+      <a href="#" onclick="goToPromos();return false">Promoções</a>
       <a href="#" class="btn btn-tw" id="btn-login">▶ Entrar com Twitch</a>
       <div id="user-box" style="display:none;align-items:center;gap:12px">
         <span style="display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);padding:6px 13px 6px 6px;border-radius:30px">
@@ -272,7 +272,7 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
   <p class="rv d2">Streams ao vivo, promoções exclusivas com os melhores parceiros, e jogos com os teus pontos do canal só por diversão.</p>
   <div class="hero-cta rv d3">
     <a href="#" class="btn btn-tw btn-xl" id="btn-login-hero">▶ Entrar com Twitch</a>
-    <a href="#promos" class="btn btn-ghost btn-xl">Ver promoções</a>
+    <a href="#" onclick="goToPromos();return false" class="btn btn-ghost btn-xl">Ver promoções</a>
   </div>
   <div class="stats rv d4">
     <div class="stat"><div class="n">15.3K</div><div class="l">Seguidores</div></div>
@@ -516,7 +516,20 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 // --- Ligação à Supabase ---
 const SUPABASE_URL = "https://gtvjvaenmtdatbmgcimr.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RzjL7nd7qU4ZsOA-FhM-pQ_LkKmc14N";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Protegido: se o browser bloquear a biblioteca Supabase (Tracking Prevention,
+// adblockers, etc.), o site NÃO pode partir todo. Aqui criamos o cliente com
+// cuidado — se falhar, sb fica null e o resto do site (navegação, jogos,
+// promoções) continua a funcionar; só o login com Twitch é que fica indisponível.
+let sb = null;
+try {
+  if (typeof supabase !== "undefined" && supabase.createClient) {
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  } else {
+    console.warn("Supabase não carregou (provavelmente bloqueado pelo browser). O login fica indisponível, mas o resto do site funciona.");
+  }
+} catch (e) {
+  console.warn("Erro a iniciar a Supabase:", e, "— o site continua a funcionar sem login.");
+}
 
 // --- Backend dos pontos (StreamElements) ---
 const POINTS_API = "https://web-production-6d300.up.railway.app";
@@ -539,6 +552,18 @@ function showScreen(name){
   });
   window.scrollTo(0,0);
 }
+// ir para a secção de promoções (mostra o home e faz scroll até lá)
+function goToPromos(){
+  showScreen("home");
+  // espera o screen aparecer e depois faz scroll suave até às promos
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      const el = $("promos");
+      if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+    }, 60);
+  });
+}
+window.goToPromos = goToPromos;
 // abrir um jogo (só se tiver login)
 function openGame(game){
   if(!window._token){
@@ -570,6 +595,7 @@ async function fetchPoints(twitchLogin){
 // --- Entrar com Twitch ---
 async function loginTwitch(e){
   if(e) e.preventDefault();
+  if(!sb){ alert("O login está temporariamente indisponível. O teu browser pode estar a bloquear a ligação — tenta desativar a proteção de tracking para este site, ou usa outro browser."); return; }
   await sb.auth.signInWithOAuth({
     provider: "twitch",
     options: { redirectTo: window.location.origin }
@@ -577,12 +603,14 @@ async function loginTwitch(e){
 }
 async function logout(e){
   if(e) e.preventDefault();
+  if(!sb){ window.location.reload(); return; }
   await sb.auth.signOut();
   window.location.reload();
 }
 
 // --- Mostrar estado (logado / deslogado) ---
 async function refreshUser(){
+  if(!sb) return;  // sem Supabase não há sessão para mostrar; site continua a funcionar
   const { data:{ session } } = await sb.auth.getSession();
   const loginBtns = [$("btn-login"), $("btn-login-hero")];
   if(session){
@@ -975,8 +1003,10 @@ $("rl-clear").addEventListener("click", ()=>{ if(!spinning) clearBets(); });
 $("rl-repeat").addEventListener("click", repeatBets);
 $("rl-double").addEventListener("click", doubleBets);
 
-// reage a login/logout e ao voltar da Twitch
-sb.auth.onAuthStateChange(()=>refreshUser());
+// reage a login/logout e ao voltar da Twitch (só se a Supabase carregou)
+if(sb){
+  sb.auth.onAuthStateChange(()=>refreshUser());
+}
 refreshUser();
 </script>
 
