@@ -251,8 +251,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 /* ============ LIVE / WATCH ============ */
 .live-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:22px}
 .player{aspect-ratio:16/9;border-radius:16px;background:#0a0716;border:1px solid var(--line);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.player-fallback{display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--muted);font-size:13px;text-align:center;padding:20px}
 .player .play{width:0;height:0;border-left:26px solid var(--gold);border-top:16px solid transparent;border-bottom:16px solid transparent;opacity:.5}
-.player .ov{position:absolute;bottom:14px;left:16px;font-size:12px;color:var(--muted)}
 .chan-list{display:flex;flex-direction:column;gap:12px}
 .chan{display:flex;align-items:center;gap:14px;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;transition:.2s}
 .chan:hover{transform:translateX(4px);border-color:rgba(177,75,255,.4)}
@@ -482,7 +483,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
       <h2 class="s-title">Vê onde quiseres</h2>
       <p class="s-sub">Acompanha as streams ao vivo e nunca percas uma sessão.</p>
       <div class="live-grid">
-        <div class="player"><div class="play"></div><div class="ov">stream incorporada aqui (Twitch)</div></div>
+        <div class="player" id="twitch-player">
+          <div class="player-fallback">
+            <div class="play"></div>
+            <div>A carregar a stream…</div>
+          </div>
+        </div>
         <div class="chan-list">
           <a class="chan" href="https://www.twitch.tv/jigadores" target="_blank" rel="noopener"><div class="ic tw">TW</div><div><div class="nm">Twitch</div><div class="sub">Streams principais · ao vivo</div></div></a>
           <a class="chan" href="https://discord.gg/Mw8ZzTfB" target="_blank" rel="noopener"><div class="ic dc">DC</div><div><div class="nm">Discord</div><div class="sub">Comunidade & chat</div></div></a>
@@ -525,11 +531,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
   <div id="screen-leaderboard" style="display:none">
     <div class="page-head">
       <h1>Ranking</h1>
-      <p>Os melhores jogadores da comunidade pelos pontos ganhos nos jogos da casa. Só diversão — sem prémios reais.</p>
+      <p>Os jogadores com mais pontos do canal. Ganha pontos a ver as streams e a jogar — só por diversão, sem prémios reais.</p>
     </div>
     <div class="lb-tabs">
-      <div class="lb-tab active">🔥 Esta semana</div>
-      <div class="lb-tab" style="opacity:.5;cursor:default">📅 Este mês</div>
+      <div class="lb-tab active">🏆 Top jogadores</div>
     </div>
     <div id="lb-content"></div>
   </div><!-- /screen-leaderboard -->
@@ -687,7 +692,29 @@ try {
 }
 
 const POINTS_API = "https://web-production-6d300.up.railway.app";
+const TWITCH_CHANNEL = "jigadores";  // muda aqui se o canal mudar
 const $ = id => document.getElementById(id);
+
+// constrói o embed do Twitch com o domínio actual (funciona em jigadores.com,
+// no preview do Vercel, em localhost — o Twitch exige que o 'parent' bata certo)
+function buildTwitchEmbed(){
+  const box = $("twitch-player");
+  if(!box) return;
+  const host = window.location.hostname;
+  // sem domínio (ficheiro local) o Twitch não carrega — mostra aviso amigável
+  if(!host || host==="localhost" && window.location.protocol==="file:"){
+    box.innerHTML = `<div class="player-fallback"><div class="play"></div><div>A stream aparece aqui quando o site está online em jigadores.com</div></div>`;
+    return;
+  }
+  const src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${host}&autoplay=true&muted=true`;
+  const ifr = document.createElement("iframe");
+  ifr.src = src;
+  ifr.allowFullscreen = true;
+  ifr.setAttribute("allow","autoplay; fullscreen");
+  ifr.title = "Stream do Jigadores na Twitch";
+  box.innerHTML = "";
+  box.appendChild(ifr);
+}
 
 // estado da roleta
 let currentChip = 10;
@@ -822,8 +849,8 @@ async function loadLeaderboard(){
   if(!rows || rows.length===0){
     box.innerHTML = `<div class="lb-empty">
       <div class="le-ic">🏆</div>
-      <h3>Ranking em breve</h3>
-      <p>Assim que os jogos da casa começarem a contar pontos, os melhores jogadores da semana aparecem aqui — só por diversão.</p>
+      <h3>Ainda sem ranking</h3>
+      <p>Ainda não há pontos suficientes no canal para mostrar um ranking. Vê as streams e ganha pontos para apareceres aqui!</p>
     </div>`;
     return;
   }
@@ -1331,6 +1358,7 @@ function initSearch(){
 // ====== ARRANQUE ======
 renderOffers();
 initSearch();
+buildTwitchEmbed();
 if(sb){ sb.auth.onAuthStateChange(()=>refreshUser()); }
 refreshUser();
 </script>
