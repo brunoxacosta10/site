@@ -1,153 +1,237 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JIGADORES · Streamer & Comunidade</title>
-<meta name="description" content="O canal do Jigadores — streams ao vivo, promoções exclusivas, sorteios e comunidade.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Sora:wght@400;600;800&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Sora:wght@400;600;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#070510; --bg2:#0d0a1c; --panel:#120e24;
+  --bg:#070510; --bg2:#0d0a1c; --panel:#120e24; --panel2:#171130;
   --gold:#ffc442; --gold-2:#ff8a2b; --neon:#b14bff; --neon-2:#5d2bff;
   --cyan:#27e0ff; --txt:#ece8ff; --muted:#9a93c4; --line:rgba(177,75,255,.18);
-  --ok:#46e08a; --down:#ff6b7e;
+  --ok:#46e08a; --down:#ff6b7e; --sidebar-w:250px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:"Outfit",sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden;
-  background-image:radial-gradient(900px 500px at 80% -5%,rgba(177,75,255,.18),transparent),
-    radial-gradient(700px 500px at 0% 20%,rgba(39,224,255,.08),transparent);}
+  background-image:radial-gradient(900px 500px at 80% -5%,rgba(177,75,255,.16),transparent),
+    radial-gradient(700px 500px at 0% 20%,rgba(39,224,255,.06),transparent);}
 h1,h2,h3,.display{font-family:"Sora",sans-serif}
 .mono{font-family:"Chakra Petch",sans-serif;letter-spacing:.04em}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1140px;margin:0 auto;padding:0 22px}
 
-/* grain + glow overlay */
+/* grain overlay */
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");}
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");}
 
-/* NAV */
-nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
-  background:linear-gradient(180deg,rgba(7,5,16,.92),rgba(7,5,16,.55));border-bottom:1px solid var(--line)}
-.nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
-.logo{font-family:"Sora";font-weight:800;font-size:21px;letter-spacing:.02em;display:flex;align-items:center;gap:10px}
-.logo .dot{width:11px;height:11px;border-radius:50%;background:var(--gold);box-shadow:0 0 16px var(--gold);animation:pulse 1.8s infinite}
-.logo span{background:linear-gradient(90deg,var(--gold),var(--gold-2));-webkit-background-clip:text;background-clip:text;color:transparent}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.nav-links{display:flex;gap:30px;align-items:center}
-.nav-links a{font-size:14px;color:var(--muted);transition:.2s;font-weight:500}
-.nav-links a:hover{color:var(--txt)}
-.btn{font-family:"Sora";font-weight:700;font-size:14px;padding:11px 20px;border-radius:11px;cursor:pointer;border:none;transition:.22s;display:inline-flex;align-items:center;gap:9px}
+/* ============ BUTTONS ============ */
+.btn{font-family:"Sora";font-weight:700;font-size:14px;padding:11px 20px;border-radius:11px;cursor:pointer;border:none;transition:.22s;display:inline-flex;align-items:center;gap:9px;justify-content:center}
 .btn-tw{background:linear-gradient(120deg,#9146FF,#6e2bd6);color:#fff;box-shadow:0 8px 26px rgba(145,70,255,.4)}
 .btn-tw:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(145,70,255,.6)}
 .btn-ghost{background:rgba(255,196,66,.08);color:var(--gold);border:1px solid rgba(255,196,66,.35)}
 .btn-ghost:hover{background:rgba(255,196,66,.16)}
-@media(max-width:760px){.nav-links a:not(.btn){display:none}}
+.btn-gold{background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(255,160,50,.4)}
+.btn-xl{padding:15px 28px;font-size:16px;border-radius:13px}
 
-/* HERO */
-.hero{position:relative;z-index:2;padding:90px 0 70px;text-align:center}
-.live-badge{display:inline-flex;align-items:center;gap:9px;background:rgba(255,60,90,.12);
-  border:1px solid rgba(255,60,90,.4);color:#ff6b85;padding:7px 15px;border-radius:30px;font-size:13px;font-weight:600;
-  font-family:"Chakra Petch";margin-bottom:26px}
+/* ============ SIDEBAR ============ */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;z-index:60;
+  background:linear-gradient(180deg,#0c0820,#090614);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;padding:22px 16px;overflow-y:auto}
+.side-logo{font-family:"Sora";font-weight:800;font-size:22px;letter-spacing:.02em;display:flex;align-items:center;gap:10px;padding:6px 8px 22px;cursor:pointer}
+.side-logo .dot{width:11px;height:11px;border-radius:50%;background:var(--gold);box-shadow:0 0 16px var(--gold);animation:pulse 1.8s infinite;flex-shrink:0}
+.side-logo span{background:linear-gradient(90deg,var(--gold),var(--gold-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+.side-promo{display:block;border-radius:14px;padding:14px 16px;margin-bottom:16px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(177,75,255,.22),rgba(93,43,255,.1));border:1px solid rgba(177,75,255,.3);cursor:pointer;transition:.2s}
+.side-promo:hover{border-color:rgba(177,75,255,.6);transform:translateY(-2px)}
+.side-promo .sp-k{font-family:"Chakra Petch";font-size:11px;color:var(--neon);text-transform:uppercase;letter-spacing:.08em}
+.side-promo .sp-v{font-family:"Sora";font-weight:800;font-size:15px;margin-top:2px;color:#fff}
+
+.side-nav{display:flex;flex-direction:column;gap:4px}
+.side-sep{height:1px;background:var(--line);margin:14px 6px}
+.nav-item{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:12px;color:var(--muted);
+  font-weight:500;font-size:15px;cursor:pointer;transition:.18s;border:1px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.04);color:var(--txt)}
+.nav-item.active{background:linear-gradient(120deg,rgba(177,75,255,.25),rgba(93,43,255,.12));
+  color:#fff;border-color:rgba(177,75,255,.35);box-shadow:0 0 22px rgba(177,75,255,.18)}
+.nav-item .ni-ic{width:22px;height:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.nav-item .ni-ic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9}
+.nav-item.active .ni-ic{color:var(--gold)}
+
+.side-foot{margin-top:auto;padding-top:20px}
+.side-soc{display:flex;gap:8px;margin-bottom:14px}
+.side-soc a{width:38px;height:38px;border-radius:10px;background:var(--panel);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:700;font-size:12px;color:var(--muted);transition:.2s}
+.side-soc a:hover{color:var(--gold);border-color:var(--gold);transform:translateY(-3px)}
+.side-age{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted);line-height:1.5}
+.side-age .ageb{flex-shrink:0;border:1px solid rgba(255,60,90,.4);color:#ff6b85;border-radius:7px;
+  width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:800;font-size:13px}
+
+/* ============ TOPBAR ============ */
+.topbar{position:sticky;top:0;z-index:50;height:72px;display:flex;align-items:center;gap:18px;
+  padding:0 30px;backdrop-filter:blur(14px);background:linear-gradient(180deg,rgba(7,5,16,.9),rgba(7,5,16,.55));
+  border-bottom:1px solid var(--line)}
+.search{flex:1;max-width:440px;display:flex;align-items:center;gap:10px;background:var(--panel);
+  border:1px solid var(--line);border-radius:12px;padding:11px 16px;color:var(--muted)}
+.search svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+.search input{background:none;border:none;outline:none;color:var(--txt);font-family:"Outfit";font-size:14px;width:100%}
+.search input::placeholder{color:var(--muted)}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.points-pill{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);
+  padding:6px 14px 6px 6px;border-radius:30px}
+.points-pill img{width:30px;height:30px;border-radius:50%;object-fit:cover}
+.points-pill .pn{font-size:14px;font-weight:600}
+.points-pill .pp{color:var(--gold);font-weight:700;font-family:"Chakra Petch";font-size:14px}
+.logout-link{font-size:13px;color:var(--muted);cursor:pointer}
+.logout-link:hover{color:var(--txt)}
+
+/* ============ MAIN ============ */
+.main{margin-left:var(--sidebar-w);min-height:100vh}
+.content{padding:34px 30px 60px}
+.page-head{margin-bottom:30px}
+.page-head h1{font-size:34px;font-weight:800;letter-spacing:-.01em}
+.page-head p{color:var(--muted);font-size:15px;margin-top:6px;font-weight:300}
+.eyebrow{font-family:"Chakra Petch";font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.s-title{font-size:26px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:12px}
+.s-title .cnt{font-family:"Chakra Petch";font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:3px 11px;border-radius:30px}
+.s-sub{color:var(--muted);font-size:15px;font-weight:300;margin-bottom:24px;max-width:560px}
+.sec{margin-bottom:44px}
+.back-link{color:var(--muted);font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;margin-bottom:18px;transition:.18s}
+.back-link:hover{color:var(--txt)}
+
+/* ============ HERO BANNER ============ */
+.hero-banner{position:relative;border-radius:22px;overflow:hidden;padding:48px 44px;min-height:280px;
+  display:flex;flex-direction:column;justify-content:center;
+  background:linear-gradient(115deg,#160f2e 0%,#1a1140 45%,#0d0a1c 100%);border:1px solid var(--line)}
+.hero-banner::after{content:"";position:absolute;top:-30%;right:-5%;width:480px;height:480px;border-radius:50%;
+  background:radial-gradient(circle,rgba(177,75,255,.3),transparent 65%);pointer-events:none}
+.hero-banner::before{content:"";position:absolute;bottom:-40%;left:10%;width:380px;height:380px;border-radius:50%;
+  background:radial-gradient(circle,rgba(39,224,255,.14),transparent 65%);pointer-events:none}
+.hb-live{display:inline-flex;align-items:center;gap:9px;font-family:"Chakra Petch";font-size:12px;letter-spacing:.06em;
+  color:#fff;background:rgba(255,60,90,.16);border:1px solid rgba(255,60,90,.4);padding:7px 14px;border-radius:30px;width:fit-content;margin-bottom:18px;position:relative;z-index:2}
 .live-dot{width:8px;height:8px;border-radius:50%;background:#ff3c5a;box-shadow:0 0 12px #ff3c5a;animation:pulse 1.2s infinite}
-.hero h1{font-size:clamp(44px,9vw,104px);font-weight:800;line-height:.95;letter-spacing:-.02em;margin-bottom:22px}
-.hero h1 .grad{background:linear-gradient(120deg,var(--gold) 10%,var(--gold-2) 40%,var(--neon) 90%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 30px rgba(177,75,255,.4))}
-.hero p{font-size:clamp(16px,2.4vw,21px);color:var(--muted);max-width:560px;margin:0 auto 38px;line-height:1.6;font-weight:300}
-.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-.btn-xl{padding:16px 30px;font-size:16px;border-radius:13px}
-.stats{display:flex;gap:46px;justify-content:center;margin-top:66px;flex-wrap:wrap}
-.stat .n{font-family:"Sora";font-weight:800;font-size:38px;background:linear-gradient(120deg,var(--gold),var(--neon));
-  -webkit-background-clip:text;background-clip:text;color:transparent}
-.stat .l{font-size:13px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.hero-banner h1{font-size:clamp(34px,4.5vw,52px);line-height:1.02;letter-spacing:-.02em;position:relative;z-index:2}
+.hero-banner h1 .grad{background:linear-gradient(90deg,var(--gold),var(--gold-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-banner p{font-size:clamp(15px,1.6vw,18px);color:#c9c2e8;max-width:480px;margin:18px 0 28px;line-height:1.6;font-weight:300;position:relative;z-index:2}
+.hb-cta{display:flex;gap:14px;flex-wrap:wrap;position:relative;z-index:2}
+.hb-stats{display:flex;gap:36px;margin-top:32px;position:relative;z-index:2;flex-wrap:wrap}
+.hb-stat .n{font-family:"Sora";font-weight:800;font-size:26px;background:linear-gradient(90deg,var(--gold),var(--gold-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hb-stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
 
-/* floating chips */
-.chip{position:absolute;font-family:"Chakra Petch";font-weight:700;border-radius:14px;padding:12px 16px;font-size:15px;
-  background:var(--panel);border:1px solid var(--line);box-shadow:0 14px 40px rgba(0,0,0,.5);z-index:1;opacity:.9;
-  animation:float 5s ease-in-out infinite}
-.chip.c1{top:120px;left:6%;color:var(--gold)} .chip.c2{top:230px;right:7%;color:var(--cyan);animation-delay:1.2s}
-.chip.c3{bottom:60px;left:11%;color:var(--neon);animation-delay:2s}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
-@media(max-width:760px){.chip{display:none}}
+/* ============ CASINO CARDS ============ */
+.offer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px}
+.offer{border-radius:18px;overflow:hidden;background:var(--panel);border:1px solid var(--line);transition:.25s;display:flex;flex-direction:column}
+.offer:hover{transform:translateY(-5px);border-color:rgba(255,196,66,.4);box-shadow:0 22px 50px rgba(0,0,0,.5)}
+.offer-img{height:150px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.offer-img .brandname{font-family:"Sora";font-weight:800;font-size:26px;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.6);z-index:2;letter-spacing:.02em;text-align:center;padding:0 16px}
+.offer-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(18,14,36,.85))}
+.offer-badge{position:absolute;top:12px;left:12px;z-index:3;font-family:"Chakra Petch";font-size:11px;font-weight:700;
+  letter-spacing:.06em;padding:5px 11px;border-radius:30px;display:flex;align-items:center;gap:6px;text-transform:uppercase}
+.offer-badge .bdot{width:7px;height:7px;border-radius:50%}
+.badge-new{background:rgba(70,224,138,.18);color:#5fe3a0;border:1px solid rgba(70,224,138,.4)}
+.badge-new .bdot{background:#5fe3a0}
+.badge-top{background:rgba(255,60,90,.16);color:#ff8a9e;border:1px solid rgba(255,60,90,.4)}
+.badge-top .bdot{background:#ff5a72}
+.badge-hot{background:rgba(255,138,43,.16);color:#ffb066;border:1px solid rgba(255,138,43,.4)}
+.badge-hot .bdot{background:#ff8a2b}
+.fs-tag{position:absolute;bottom:12px;right:12px;z-index:3;font-family:"Chakra Petch";font-size:10px;font-weight:700;
+  background:rgba(177,75,255,.25);color:#d9b6ff;border:1px solid rgba(177,75,255,.5);padding:4px 9px;border-radius:30px;text-transform:uppercase;letter-spacing:.05em}
+.offer-body{padding:18px 20px 20px;flex:1;display:flex;flex-direction:column}
+.offer-bonus{font-family:"Sora";font-weight:800;font-size:19px;line-height:1.25;margin-bottom:4px}
+.offer-tcs{font-size:11px;color:var(--muted);margin-bottom:16px}
+.offer-rows{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px;margin-bottom:18px}
+.offer-row{display:flex;align-items:center;gap:9px}
+.offer-row .or-ic{width:30px;height:30px;border-radius:9px;background:rgba(177,75,255,.12);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--neon)}
+.offer-row .or-ic svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+.offer-row .or-k{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;line-height:1.2}
+.offer-row .or-v{font-family:"Chakra Petch";font-weight:700;font-size:13px;color:var(--txt);line-height:1.2}
+.offer-cta{margin-top:auto;width:100%;text-align:center;padding:13px;border-radius:11px;font-family:"Sora";font-weight:700;font-size:14px;
+  background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206;transition:.2s}
+.offer-cta:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.offer.soon{opacity:.55}
+.offer.soon .offer-img{background:linear-gradient(135deg,#1a1330,#120e24)}
+.offer.soon .offer-cta{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line);cursor:default}
+.offer.soon:hover{transform:none;border-color:var(--line);box-shadow:none}
 
-/* SECTION */
-section{position:relative;z-index:2;padding:70px 0}
-.eyebrow{font-family:"Chakra Petch";color:var(--gold);font-size:13px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:12px}
-.s-title{font-size:clamp(30px,5vw,48px);font-weight:800;letter-spacing:-.01em;margin-bottom:14px;line-height:1.05}
-.s-sub{color:var(--muted);font-size:17px;max-width:520px;margin-bottom:42px;font-weight:300;line-height:1.6}
+/* badges on offer card body (trust) */
+.trust-badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.trust-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:#5fd39a;
+  background:rgba(95,211,154,.07);border:1px solid rgba(95,211,154,.25);padding:5px 10px;border-radius:30px;line-height:1}
+.trust-badge svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:3;flex-shrink:0}
 
-/* WATCH / live */
-.live-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:22px}
-@media(max-width:880px){.live-grid{grid-template-columns:1fr}}
-.player{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);
-  background:linear-gradient(135deg,#1a1330,#0d0a1c);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
-.player .play{width:84px;height:84px;border-radius:50%;background:linear-gradient(120deg,var(--neon),var(--neon-2));
-  display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(177,75,255,.6);cursor:pointer;transition:.25s}
-.player .play:hover{transform:scale(1.08)}
-.player .play::after{content:"";border-left:24px solid #fff;border-top:15px solid transparent;border-bottom:15px solid transparent;margin-left:6px}
-.player .ov{position:absolute;left:18px;bottom:16px;font-family:"Chakra Petch";font-size:13px;color:var(--muted)}
-.chan-list{display:flex;flex-direction:column;gap:14px}
-.chan{display:flex;align-items:center;gap:15px;padding:17px;border-radius:15px;background:var(--panel);
-  border:1px solid var(--line);transition:.22s;cursor:pointer}
-.chan:hover{transform:translateX(6px);border-color:rgba(255,196,66,.4)}
-.chan .ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-family:"Sora";font-size:18px;flex-shrink:0}
-.chan .tw{background:#9146FF;color:#fff} .chan .dc{background:#5865F2;color:#fff} .chan .tg{background:#27a7e7;color:#fff} .chan .ig{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff}
-.chan .nm{font-weight:600;font-size:16px} .chan .sub{font-size:13px;color:var(--muted)}
+/* ============ FEATURED ROW (horizontal scroll) ============ */
+.row-scroll{display:flex;gap:18px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory}
+.row-scroll::-webkit-scrollbar{height:6px}
+.row-scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:10px}
+.row-scroll .offer{min-width:290px;scroll-snap-align:start}
 
-/* PROMOS */
-.promo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-@media(max-width:880px){.promo-grid{grid-template-columns:1fr}}
-.promo{position:relative;border-radius:20px;padding:26px;background:linear-gradient(160deg,var(--panel),#0c0918);
-  border:1px solid var(--line);overflow:hidden;transition:.25s}
-.promo:hover{transform:translateY(-6px);border-color:rgba(255,196,66,.45);box-shadow:0 20px 50px rgba(0,0,0,.5)}
-.promo::before{content:"";position:absolute;top:-40%;right:-30%;width:200px;height:200px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,196,66,.18),transparent 70%)}
-.promo .tag{font-family:"Chakra Petch";font-size:12px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase}
-.promo h3{font-size:23px;margin:10px 0 8px}
-.promo .desc{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px;font-weight:300}
-.code{display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.35);
-  border:1px dashed rgba(255,196,66,.45);border-radius:11px;padding:13px 16px;margin-bottom:16px}
-.code .v{font-family:"Chakra Petch";font-weight:700;color:var(--gold);font-size:18px;letter-spacing:.1em}
-.code .cp{font-size:12px;color:var(--muted);cursor:pointer;padding:5px 10px;border-radius:7px;background:rgba(255,196,66,.1)}
-.promo .go{width:100%;text-align:center;justify-content:center;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206}
-/* badges de confiança nas promos */
-.promo-badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
-.promo-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;
-  color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line);
-  padding:5px 10px;border-radius:999px;line-height:1}
-.promo-badge svg{width:12px;height:12px;flex-shrink:0}
-.promo-badge.ok{color:#5fd39a;border-color:rgba(95,211,154,.25);background:rgba(95,211,154,.07)}
+/* ============ LEADERBOARD PODIUM ============ */
+.lb-tabs{display:flex;gap:10px;margin-bottom:30px;flex-wrap:wrap}
+.lb-tab{font-family:"Chakra Petch";font-size:13px;font-weight:700;padding:9px 18px;border-radius:11px;cursor:pointer;
+  background:var(--panel);border:1px solid var(--line);color:var(--muted);transition:.18s;display:flex;align-items:center;gap:8px}
+.lb-tab:hover{color:var(--txt)}
+.lb-tab.active{background:linear-gradient(120deg,rgba(255,196,66,.16),rgba(255,138,43,.08));color:var(--gold);border-color:rgba(255,196,66,.4)}
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:18px;align-items:end;max-width:780px;margin:0 auto 30px}
+.pod{display:flex;flex-direction:column;align-items:center;text-align:center}
+.pod-av{width:90px;height:90px;border-radius:20px;border:3px solid var(--line);margin-bottom:12px;background:var(--panel2);
+  display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:800;font-size:30px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.4)}
+.pod.p1 .pod-av{width:108px;height:108px;border-color:var(--gold);box-shadow:0 0 30px rgba(255,196,66,.35)}
+.pod.p2 .pod-av{border-color:#c7d0e0}
+.pod.p3 .pod-av{border-color:#e0a063}
+.pod-name{font-family:"Sora";font-weight:800;font-size:16px;margin-bottom:14px;letter-spacing:.02em}
+.pod-base{width:100%;border-radius:14px 14px 0 0;background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-bottom:none;padding:22px 14px 26px;position:relative}
+.pod.p1 .pod-base{padding-top:34px;background:linear-gradient(180deg,rgba(255,196,66,.12),var(--panel));border-color:rgba(255,196,66,.3)}
+.pod.p2 .pod-base{padding-top:22px}
+.pod.p3 .pod-base{padding-top:16px}
+.pod-rank{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:38px;height:38px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:800;font-size:16px;color:#1a1206}
+.pod.p1 .pod-rank{background:linear-gradient(120deg,var(--gold),var(--gold-2));box-shadow:0 6px 18px rgba(255,160,50,.5)}
+.pod.p2 .pod-rank{background:linear-gradient(120deg,#e8edf5,#aeb8c9)}
+.pod.p3 .pod-rank{background:linear-gradient(120deg,#f0b277,#cc7f3d)}
+.pod-score-k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.pod-score{font-family:"Chakra Petch";font-weight:700;font-size:18px;color:var(--gold)}
+.lb-empty{text-align:center;padding:50px 20px;border:1px dashed var(--line);border-radius:18px;background:var(--panel);color:var(--muted);max-width:780px;margin:0 auto}
+.lb-empty .le-ic{font-size:42px;margin-bottom:14px}
+.lb-empty h3{color:var(--txt);font-size:19px;margin-bottom:8px}
+.lb-empty p{font-size:14px;font-weight:300;max-width:380px;margin:0 auto;line-height:1.6}
+.lb-list{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.lb-row{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--panel);border:1px solid var(--line);border-radius:13px}
+.lb-row .lr-rank{font-family:"Sora";font-weight:800;font-size:16px;color:var(--muted);width:32px;text-align:center}
+.lb-row .lr-name{font-weight:600;flex:1}
+.lb-row .lr-score{font-family:"Chakra Petch";font-weight:700;color:var(--gold)}
 
-/* POINTS / shop teaser */
-.points{background:linear-gradient(150deg,rgba(177,75,255,.14),rgba(39,224,255,.06));
-  border:1px solid var(--line);border-radius:26px;padding:50px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
-@media(max-width:880px){.points{grid-template-columns:1fr;padding:34px}}
-.points h2{font-size:clamp(28px,4vw,40px);margin-bottom:16px}
-.points p{color:var(--muted);font-weight:300;line-height:1.7;margin-bottom:26px}
-.steps{display:flex;flex-direction:column;gap:16px}
-.step{display:flex;gap:15px;align-items:flex-start}
-.step .num{width:34px;height:34px;flex-shrink:0;border-radius:10px;background:rgba(255,196,66,.12);
-  color:var(--gold);font-family:"Sora";font-weight:800;display:flex;align-items:center;justify-content:center}
-.step .tx b{display:block;margin-bottom:2px} .step .tx span{color:var(--muted);font-size:14px;font-weight:300}
-.soon{display:inline-block;font-family:"Chakra Petch";font-size:12px;letter-spacing:.1em;color:var(--cyan);
-  border:1px solid rgba(39,224,255,.4);border-radius:20px;padding:5px 13px;margin-top:8px}
+/* ============ LIVE / WATCH ============ */
+.live-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:22px}
+.player{aspect-ratio:16/9;border-radius:16px;background:#0a0716;border:1px solid var(--line);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.player .play{width:0;height:0;border-left:26px solid var(--gold);border-top:16px solid transparent;border-bottom:16px solid transparent;opacity:.5}
+.player .ov{position:absolute;bottom:14px;left:16px;font-size:12px;color:var(--muted)}
+.chan-list{display:flex;flex-direction:column;gap:12px}
+.chan{display:flex;align-items:center;gap:14px;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;transition:.2s}
+.chan:hover{transform:translateX(4px);border-color:rgba(177,75,255,.4)}
+.chan .ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:700;font-size:13px;flex-shrink:0;color:#fff}
+.chan .ic.tw{background:#9146FF}.chan .ic.dc{background:#5865F2}.chan .ic.tg{background:#229ED9}.chan .ic.ig{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)}
+.chan .nm{font-weight:600;font-size:15px}
+.chan .sub{font-size:12px;color:var(--muted);margin-top:2px}
 
-/* FOOTER */
-footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px 0 40px;margin-top:40px;text-align:center}
-.foot-soc{display:flex;gap:16px;justify-content:center;margin-bottom:24px}
-.foot-soc a{width:46px;height:46px;border-radius:12px;background:var(--panel);border:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;transition:.2s;font-family:"Sora";font-weight:700}
-.foot-soc a:hover{transform:translateY(-4px);border-color:var(--gold);color:var(--gold)}
-.foot-note{color:var(--muted);font-size:13px;line-height:1.7;max-width:600px;margin:0 auto;font-weight:300}
-.age{display:inline-block;border:1px solid rgba(255,60,90,.4);color:#ff6b85;border-radius:8px;
-  width:42px;height:42px;line-height:40px;font-family:"Sora";font-weight:800;margin-bottom:18px}
+/* ============ GAME LOBBY CARDS ============ */
+.game-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+.game-card{border:1px solid var(--line);border-radius:18px;padding:26px;background:linear-gradient(160deg,var(--panel),#0c0918);cursor:pointer;transition:.25s;text-align:left}
+.game-card:hover{transform:translateY(-6px);border-color:rgba(255,196,66,.45);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.game-card .gc-ic{font-size:42px;margin-bottom:14px}
+.game-card h3{font-size:21px;margin-bottom:8px}
+.game-card p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:18px;font-weight:300}
+.game-card .gc-go{font-family:"Chakra Petch";font-weight:700;color:var(--gold);font-size:14px}
+.locked-note{padding:24px;border:1px solid var(--line);border-radius:14px;background:var(--panel);text-align:center;color:var(--muted);margin-bottom:22px}
 
-/* reveal on load */
-.game-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 /* ===== MOEDA 3D (coinflip) ===== */
+.game-panel{border:1px solid var(--line);border-radius:20px;padding:30px;background:linear-gradient(160deg,var(--panel),#0c0918);max-width:460px}
 .coin-stage{display:flex;justify-content:center;align-items:center;height:160px;margin-bottom:18px;perspective:1000px}
 .coin{position:relative;width:120px;height:120px;transform-style:preserve-3d;transform:rotateY(0deg)}
 .coin-face{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -157,9 +241,14 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 .coin-tails{background:radial-gradient(circle at 35% 30%,#d9a6ff,#b14bff 55%,#5d2bff);color:#fff;transform:rotateY(180deg)}
 .coin.flipping{animation:coinSpin .12s linear infinite}
 @keyframes coinSpin{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+.field-label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.field-input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:16px;font-family:"Outfit"}
+.bal-line{text-align:center;color:var(--muted);font-size:13px;margin-top:10px}
+.bal-line b,.bal-line span{color:var(--gold);font-weight:700}
+
 /* ===== BLACKJACK ===== */
 .bj-table{background:radial-gradient(ellipse at 50% 0%,#1a4d3a,#0d3326 70%,#08231a);
-  border:1px solid #2a5f48;border-radius:20px;padding:30px 24px;margin-top:20px;min-height:300px}
+  border:1px solid #2a5f48;border-radius:20px;padding:30px 24px;margin-top:4px;min-height:300px}
 .bj-area{margin-bottom:26px}
 .bj-label{font-family:"Chakra Petch";font-size:13px;color:#cfe8dd;letter-spacing:.08em;margin-bottom:10px;text-transform:uppercase}
 .bj-label span{color:var(--gold);font-weight:700;margin-left:6px}
@@ -179,28 +268,15 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 .bj-act:hover{border-color:var(--gold)}
 .bj-act:disabled{opacity:.35;cursor:not-allowed}
 
-@media(max-width:880px){.game-cards{grid-template-columns:1fr}}
-.game-card{border:1px solid var(--line);border-radius:20px;padding:28px;background:linear-gradient(160deg,var(--panel),#0c0918);
-  cursor:pointer;transition:.25s;text-align:left}
-.game-card:hover{transform:translateY(-6px);border-color:rgba(255,196,66,.45);box-shadow:0 20px 50px rgba(0,0,0,.5)}
-.game-card .gc-ic{font-size:46px;margin-bottom:14px}
-.game-card h3{font-size:23px;margin-bottom:8px}
-.game-card p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:18px;font-weight:300}
-.game-card .gc-go{font-family:"Chakra Petch";font-weight:700;color:var(--gold);font-size:14px}
-
-/* ===== ROLETA REALISTA ===== */
-.roul-layout{display:grid;grid-template-columns:340px 1fr;gap:30px;margin-top:24px;align-items:center}
-@media(max-width:820px){.roul-layout{grid-template-columns:1fr;justify-items:center}}
+/* ===== ROLETA ===== */
+.roul-layout{display:grid;grid-template-columns:340px 1fr;gap:30px;margin-top:8px;align-items:center}
 .roul-wheel-box{position:relative;width:300px;height:300px}
 .wheel{width:300px;height:300px;border-radius:50%;position:relative;
   box-shadow:0 0 0 10px #3a2410,0 0 0 14px #6b4a1f,0 18px 50px rgba(0,0,0,.6);
   transition:transform 5s cubic-bezier(.17,.67,.12,.99)}
-.ball-orbit{position:absolute;top:0;left:0;width:300px;height:300px;z-index:6;
-  transition:transform 5s cubic-bezier(.17,.67,.12,.99)}
-.ball{position:absolute;top:8px;left:50%;width:14px;height:14px;border-radius:50%;
-  transform:translateX(-50%);
-  background:radial-gradient(circle at 35% 30%,#fff,#cfcfcf 60%,#9a9a9a);
-  box-shadow:0 2px 5px rgba(0,0,0,.6)}
+.ball-orbit{position:absolute;top:0;left:0;width:300px;height:300px;z-index:6;transition:transform 5s cubic-bezier(.17,.67,.12,.99)}
+.ball{position:absolute;top:8px;left:50%;width:14px;height:14px;border-radius:50%;transform:translateX(-50%);
+  background:radial-gradient(circle at 35% 30%,#fff,#cfcfcf 60%,#9a9a9a);box-shadow:0 2px 5px rgba(0,0,0,.6)}
 .wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
   width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#1a1330,#0d0a1c);
   border:3px solid #6b4a1f;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
@@ -212,7 +288,6 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 .chip-btn:hover{transform:scale(1.08)}
 .chip-btn.active{border-color:var(--gold);box-shadow:0 0 14px rgba(255,196,66,.6);transform:scale(1.1)}
 .roul-bet-info{font-size:14px;color:var(--muted);margin-top:6px}
-
 .roul-table-wrap{margin-top:30px;overflow-x:auto}
 .roul-table{display:flex;gap:4px;min-width:560px}
 .bet-zero{width:42px;background:#2e7d32;border:1px solid rgba(255,255,255,.25);border-radius:8px 0 0 8px;
@@ -230,356 +305,510 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 .bet-cell.red-cell{background:#c62836} .bet-cell.black-cell{background:#1a1a1a}
 .roul-outside{display:flex;gap:4px;margin-top:4px;min-width:560px}
 .roul-outside .bet-cell{flex:1;padding:14px 4px}
-/* ficha colocada numa zona */
 .placed-chip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;
   min-width:26px;height:26px;border-radius:50%;background:radial-gradient(circle,#ffc442,#ff8a2b);
   border:2px solid #fff;color:#1a1206;font-family:"Chakra Petch";font-weight:700;font-size:11px;
   display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 2px 6px rgba(0,0,0,.5)}
 
-@keyframes rise{to{opacity:1;transform:none}}
-.d1{animation-delay:.05s}.d2{animation-delay:.15s}.d3{animation-delay:.28s}.d4{animation-delay:.42s}.d5{animation-delay:.56s}
+/* ============ FOOTER ============ */
+.foot{border-top:1px solid var(--line);padding:34px 30px;text-align:center}
+.foot-note{color:var(--muted);font-size:13px;line-height:1.7;max-width:680px;margin:0 auto;font-weight:300}
+
+/* ============ MOBILE ============ */
+.mob-bar{display:none}
+@media(max-width:980px){
+  :root{--sidebar-w:0px}
+  .sidebar{transform:translateX(-100%);transition:transform .25s;width:250px;--sidebar-w:250px}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .topbar{padding:0 16px;gap:12px}
+  .content{padding:24px 16px 90px}
+  .hamb{display:flex !important}
+  .live-grid{grid-template-columns:1fr}
+  .roul-layout{grid-template-columns:1fr;justify-items:center}
+  .mob-bar{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:55;height:64px;
+    background:linear-gradient(180deg,rgba(7,5,16,.85),#090614);border-top:1px solid var(--line);
+    backdrop-filter:blur(14px);align-items:center;justify-content:space-around;padding:0 8px}
+  .mob-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10px;cursor:pointer;padding:6px 10px;border-radius:10px}
+  .mob-item svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.9}
+  .mob-item.active{color:var(--gold)}
+  .page-head h1{font-size:27px}
+  .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:58}
+  .sidebar-backdrop.show{display:block}
+}
+.hamb{display:none;width:42px;height:42px;border-radius:11px;background:var(--panel);border:1px solid var(--line);
+  align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.hamb svg{width:20px;height:20px;stroke:var(--txt);fill:none;stroke-width:2}
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="wrap nav-in">
-    <div class="logo"><span class="dot"></span><span>JIGADORES</span></div>
-    <div class="nav-links">
-      <a href="#" onclick="showScreen('home');return false">Início</a>
-      <a href="#" onclick="showScreen('lobby');return false">Jogos</a>
-      <a href="#" onclick="goToPromos();return false">Promoções</a>
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar">
+  <div class="side-logo" onclick="go('home')"><span class="dot"></span><span>JIGADORES</span></div>
+
+  <div class="side-promo" onclick="go('casinos')">
+    <div class="sp-k">Oferta em destaque</div>
+    <div class="sp-v">Freshbet · 150% até 500$</div>
+  </div>
+
+  <nav class="side-nav">
+    <div class="nav-item active" data-nav="home" onclick="go('home')">
+      <span class="ni-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>Início
+    </div>
+    <div class="nav-item" data-nav="casinos" onclick="go('casinos')">
+      <span class="ni-ic"><svg viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 010-4h12v4"/><path d="M4 6v12a2 2 0 002 2h14v-4"/><path d="M18 12a2 2 0 000 4h4v-4z"/></svg></span>Casinos & Ofertas
+    </div>
+    <div class="nav-item" data-nav="leaderboard" onclick="go('leaderboard')">
+      <span class="ni-ic"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 01-10 0z"/><path d="M17 5h3v2a3 3 0 01-3 3"/><path d="M7 5H4v2a3 3 0 003 3"/></svg></span>Ranking
+    </div>
+    <div class="side-sep"></div>
+    <div class="nav-item" data-nav="lobby" onclick="go('lobby')">
+      <span class="ni-ic"><svg viewBox="0 0 24 24"><path d="M6 11h4M8 9v4"/><circle cx="15" cy="10" r="1"/><circle cx="18" cy="13" r="1"/><path d="M17.5 5h-11A4.5 4.5 0 002 9.5L4 17a2 2 0 003.7.5L9 15h6l1.3 2.5A2 2 0 0020 17l2-7.5A4.5 4.5 0 0017.5 5z"/></svg></span>Jogos
+    </div>
+    <div class="nav-item" data-nav="promos" onclick="goToPromos()">
+      <span class="ni-ic"><svg viewBox="0 0 24 24"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7s-1-5-4-5-3 5 4 5zM12 7s1-5 4-5 3 5-4 5z"/></svg></span>Promoções
+    </div>
+  </nav>
+
+  <div class="side-foot">
+    <div class="side-soc">
+      <a href="https://www.twitch.tv/jigadores" target="_blank" rel="noopener" title="Twitch">TW</a>
+      <a href="https://discord.gg/Mw8ZzTfB" target="_blank" rel="noopener" title="Discord">DC</a>
+      <a href="https://t.me/+J4RYmtnV9gAyY2Zk" target="_blank" rel="noopener" title="Telegram">TG</a>
+      <a href="https://www.instagram.com/jigadores" target="_blank" rel="noopener" title="Instagram">IG</a>
+    </div>
+    <div class="side-age">
+      <span class="ageb">18+</span>
+      <span>Entretenimento para maiores de 18. Joga com responsabilidade.</span>
+    </div>
+  </div>
+</aside>
+<div class="sidebar-backdrop" id="side-backdrop" onclick="closeSidebar()"></div>
+
+<!-- ============ MAIN ============ -->
+<div class="main">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="hamb" onclick="openSidebar()"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></div>
+    <div class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input type="text" placeholder="Procurar…">
+    </div>
+    <div class="top-right">
+      <div class="points-pill" id="user-box" style="display:none">
+        <img id="u-avatar" src="" alt="">
+        <span class="pn" id="u-name"></span>
+        <span class="pp">★ <span id="u-points">0</span></span>
+        <span class="logout-link" id="btn-logout">Sair</span>
+      </div>
       <a href="#" class="btn btn-tw" id="btn-login">▶ Entrar com Twitch</a>
-      <div id="user-box" style="display:none;align-items:center;gap:12px">
-        <span style="display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);padding:6px 13px 6px 6px;border-radius:30px">
-          <img id="u-avatar" src="" alt="" style="width:30px;height:30px;border-radius:50%;object-fit:cover">
-          <span id="u-name" style="font-size:14px;font-weight:600"></span>
-          <span style="color:var(--gold);font-weight:700;font-family:'Chakra Petch';font-size:14px">★ <span id="u-points">0</span></span>
-        </span>
-        <a href="#" id="btn-logout" style="font-size:13px;color:var(--muted)">Sair</a>
+    </div>
+  </header>
+
+  <div class="content">
+
+  <!-- ===== ECRÃ: HOME ===== -->
+  <div id="screen-home">
+    <div class="hero-banner sec">
+      <div class="hb-live"><span class="live-dot"></span> AO VIVO AGORA · vê o stream</div>
+      <h1>A casa do <span class="grad">JIGADORES</span></h1>
+      <p>Streams ao vivo, promoções exclusivas com os melhores parceiros, e jogos com os teus pontos do canal — só por diversão.</p>
+      <div class="hb-cta">
+        <a href="#" class="btn btn-tw btn-xl" id="btn-login-hero">▶ Entrar com Twitch</a>
+        <a href="#" onclick="go('casinos');return false" class="btn btn-ghost btn-xl">Ver ofertas</a>
+      </div>
+      <div class="hb-stats">
+        <div class="hb-stat"><div class="n">15.3K</div><div class="l">Seguidores</div></div>
+        <div class="hb-stat"><div class="n">1000+</div><div class="l">Horas transmitidas</div></div>
+        <div class="hb-stat"><div class="n">3</div><div class="l">Jogos da casa</div></div>
       </div>
     </div>
-  </div>
+
+    <!-- ofertas em destaque (scroll horizontal) -->
+    <div class="sec">
+      <h2 class="s-title">Ofertas em destaque <span class="cnt" id="feat-count">1</span></h2>
+      <p class="s-sub">As melhores promoções negociadas para a comunidade. Só 18+.</p>
+      <div class="row-scroll" id="featured-row"></div>
+    </div>
+
+    <!-- vê em direto -->
+    <div class="sec" id="watch">
+      <div class="eyebrow">Em direto</div>
+      <h2 class="s-title">Vê onde quiseres</h2>
+      <p class="s-sub">Acompanha as streams ao vivo e nunca percas uma sessão.</p>
+      <div class="live-grid">
+        <div class="player"><div class="play"></div><div class="ov">stream incorporada aqui (Twitch)</div></div>
+        <div class="chan-list">
+          <a class="chan" href="https://www.twitch.tv/jigadores" target="_blank" rel="noopener"><div class="ic tw">TW</div><div><div class="nm">Twitch</div><div class="sub">Streams principais · ao vivo</div></div></a>
+          <a class="chan" href="https://discord.gg/Mw8ZzTfB" target="_blank" rel="noopener"><div class="ic dc">DC</div><div><div class="nm">Discord</div><div class="sub">Comunidade & chat</div></div></a>
+          <a class="chan" href="https://t.me/+J4RYmtnV9gAyY2Zk" target="_blank" rel="noopener"><div class="ic tg">TG</div><div><div class="nm">Telegram</div><div class="sub">Avisos & códigos exclusivos</div></div></a>
+          <a class="chan" href="https://www.instagram.com/jigadores" target="_blank" rel="noopener"><div class="ic ig">IG</div><div><div class="nm">Instagram</div><div class="sub">Clips & bastidores</div></div></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- jogos da casa -->
+    <div class="sec">
+      <h2 class="s-title">Jogos da casa <span class="cnt">3</span></h2>
+      <p class="s-sub">Joga com os teus pontos do canal, só por diversão.</p>
+      <div class="game-cards">
+        <div class="game-card" onclick="openGame('coinflip')"><div class="gc-ic">🪙</div><h3>Coinflip</h3><p>Cara ou coroa. Acertas, dobras. Falhas, perdes.</p><span class="gc-go">Jogar →</span></div>
+        <div class="game-card" onclick="openGame('roulette')"><div class="gc-ic">🎡</div><h3>Roleta</h3><p>Roleta europeia. Cores, números, dúzias e mais.</p><span class="gc-go">Jogar →</span></div>
+        <div class="game-card" onclick="openGame('blackjack')"><div class="gc-ic">🃏</div><h3>Blackjack</h3><p>Chega a 21 sem rebentar. Contra a casa.</p><span class="gc-go">Jogar →</span></div>
+      </div>
+    </div>
+
+    <!-- secção promos (âncora para goToPromos) -->
+    <div class="sec" id="promos">
+      <div class="eyebrow">Parceiros oficiais</div>
+      <h2 class="s-title">Promoções exclusivas</h2>
+      <p class="s-sub">Ofertas negociadas para a comunidade. Só para maiores de 18 anos — joga com responsabilidade.</p>
+      <div class="offer-grid" id="promos-grid"></div>
+    </div>
+  </div><!-- /screen-home -->
+
+  <!-- ===== ECRÃ: CASINOS & OFERTAS ===== -->
+  <div id="screen-casinos" style="display:none">
+    <div class="page-head">
+      <h1>Casinos & Ofertas</h1>
+      <p>As melhores ofertas e bónus, exclusivos para ti. Só 18+ · joga com responsabilidade.</p>
+    </div>
+    <div class="offer-grid" id="casinos-grid"></div>
+  </div><!-- /screen-casinos -->
+
+  <!-- ===== ECRÃ: RANKING ===== -->
+  <div id="screen-leaderboard" style="display:none">
+    <div class="page-head">
+      <h1>Ranking</h1>
+      <p>Os melhores jogadores da comunidade pelos pontos ganhos nos jogos da casa. Só diversão — sem prémios reais.</p>
+    </div>
+    <div class="lb-tabs">
+      <div class="lb-tab active">🔥 Esta semana</div>
+      <div class="lb-tab" style="opacity:.5;cursor:default">📅 Este mês</div>
+    </div>
+    <div id="lb-content"></div>
+  </div><!-- /screen-leaderboard -->
+
+  <!-- ===== ECRÃ: LOBBY ===== -->
+  <div id="screen-lobby" style="display:none">
+    <div class="page-head">
+      <h1>Jogos da comunidade</h1>
+      <p>Joga com os teus pontos do canal, só por diversão. Entra com a Twitch para jogar.</p>
+    </div>
+    <div id="lobby-locked" class="locked-note" style="display:none">Entra com a Twitch para jogares com os teus pontos.</div>
+    <div class="game-cards">
+      <div class="game-card" onclick="openGame('coinflip')"><div class="gc-ic">🪙</div><h3>Coinflip</h3><p>Cara ou coroa. Acertas, dobras. Falhas, perdes.</p><span class="gc-go">Jogar →</span></div>
+      <div class="game-card" onclick="openGame('roulette')"><div class="gc-ic">🎡</div><h3>Roleta</h3><p>Roleta europeia. Cores, números, dúzias e mais.</p><span class="gc-go">Jogar →</span></div>
+      <div class="game-card" onclick="openGame('blackjack')"><div class="gc-ic">🃏</div><h3>Blackjack</h3><p>Chega a 21 sem rebentar. Contra a casa.</p><span class="gc-go">Jogar →</span></div>
+    </div>
+  </div><!-- /screen-lobby -->
+
+  <!-- ===== ECRÃ: COINFLIP ===== -->
+  <div id="screen-coinflip" style="display:none">
+    <div class="back-link" onclick="go('lobby')">← Voltar aos jogos</div>
+    <h2 class="s-title" style="margin-bottom:18px">🪙 Coinflip</h2>
+    <div class="game-panel">
+      <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Cara ou coroa. Acertas, dobras a aposta. Falhas, perde-la.</p>
+      <div class="coin-stage"><div id="coin" class="coin"><div class="coin-face coin-heads">CARA</div><div class="coin-face coin-tails">COROA</div></div></div>
+      <label class="field-label">Aposta (pontos)</label>
+      <input id="cf-bet" type="number" min="1" value="100" class="field-input">
+      <div style="display:flex;gap:12px;margin-bottom:18px">
+        <button class="btn" id="cf-heads" style="flex:1;background:rgba(255,196,66,.12);color:var(--gold);border:1px solid rgba(255,196,66,.4)">Cara</button>
+        <button class="btn" id="cf-tails" style="flex:1;background:rgba(177,75,255,.12);color:var(--neon);border:1px solid rgba(177,75,255,.4)">Coroa</button>
+      </div>
+      <div id="cf-result" style="text-align:center;font-family:'Chakra Petch';font-size:18px;min-height:48px;display:flex;align-items:center;justify-content:center"></div>
+      <div class="bal-line">Saldo: <span id="cf-balance">—</span> pontos</div>
+    </div>
+  </div><!-- /screen-coinflip -->
+
+  <!-- ===== ECRÃ: ROLETA ===== -->
+  <div id="screen-roulette" style="display:none">
+    <div class="back-link" onclick="go('lobby')">← Voltar aos jogos</div>
+    <h2 class="s-title" style="margin-bottom:18px">🎡 Roleta</h2>
+    <div class="roul-layout">
+      <div class="roul-wheel-box">
+        <div id="ball-orbit" class="ball-orbit"><div class="ball"></div></div>
+        <div id="wheel" class="wheel"></div>
+        <div class="wheel-center"><div id="rl-number-big">—</div><div style="font-size:11px;color:var(--muted);letter-spacing:.1em">RESULTADO</div></div>
+      </div>
+      <div class="roul-controls">
+        <div class="roul-chips">
+          <span style="font-size:12px;color:var(--muted)">Ficha:</span>
+          <button class="chip-btn active" data-chip="10">10</button>
+          <button class="chip-btn" data-chip="50">50</button>
+          <button class="chip-btn" data-chip="100">100</button>
+          <button class="chip-btn" data-chip="500">500</button>
+          <button class="chip-btn" data-chip="1000">1K</button>
+        </div>
+        <div class="roul-bet-info">Aposta total: <span id="rl-total-bet" style="color:var(--gold);font-weight:700">0</span> · Saldo: <span id="rl-balance" style="color:var(--gold);font-weight:700">—</span></div>
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn" id="rl-spin" style="flex:1;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206;font-size:16px">🎡 Rodar</button>
+          <button class="btn" id="rl-clear" style="background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt)">Limpar</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button class="btn" id="rl-repeat" style="flex:1;background:rgba(177,75,255,.12);border:1px solid rgba(177,75,255,.4);color:var(--neon);font-size:14px">↺ Repetir</button>
+          <button class="btn" id="rl-double" style="flex:1;background:rgba(39,224,255,.1);border:1px solid rgba(39,224,255,.4);color:var(--cyan);font-size:14px">×2 Dobrar</button>
+        </div>
+        <div id="rl-result" style="text-align:center;font-family:'Chakra Petch';font-size:17px;min-height:40px;display:flex;align-items:center;justify-content:center;margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="roul-table-wrap">
+      <div class="roul-table">
+        <div class="bet-zero" data-t="number" data-v="0">0</div>
+        <div class="numbers-grid" id="numbers-grid"></div>
+        <div class="col-bets">
+          <div class="bet-cell side" data-t="column" data-v="c3">2:1</div>
+          <div class="bet-cell side" data-t="column" data-v="c2">2:1</div>
+          <div class="bet-cell side" data-t="column" data-v="c1">2:1</div>
+        </div>
+      </div>
+      <div class="roul-outside">
+        <div class="bet-cell" data-t="dozen" data-v="d1">1ª dúzia</div>
+        <div class="bet-cell" data-t="dozen" data-v="d2">2ª dúzia</div>
+        <div class="bet-cell" data-t="dozen" data-v="d3">3ª dúzia</div>
+      </div>
+      <div class="roul-outside">
+        <div class="bet-cell" data-t="half" data-v="low">1-18</div>
+        <div class="bet-cell" data-t="parity" data-v="even">Par</div>
+        <div class="bet-cell red-cell" data-t="color" data-v="red">Vermelho</div>
+        <div class="bet-cell black-cell" data-t="color" data-v="black">Preto</div>
+        <div class="bet-cell" data-t="parity" data-v="odd">Ímpar</div>
+        <div class="bet-cell" data-t="half" data-v="high">19-36</div>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:12px;margin-top:14px;text-align:center">Clica numa ficha, depois nas zonas da mesa para apostar. Podes apostar em várias ao mesmo tempo.</p>
+  </div><!-- /screen-roulette -->
+
+  <!-- ===== ECRÃ: BLACKJACK ===== -->
+  <div id="screen-blackjack" style="display:none">
+    <div class="back-link" onclick="go('lobby')">← Voltar aos jogos</div>
+    <h2 class="s-title" style="margin-bottom:18px">🃏 Blackjack</h2>
+    <div class="bj-table">
+      <div class="bj-area"><div class="bj-label">Dealer <span id="bj-dealer-val"></span></div><div id="bj-dealer-cards" class="bj-cards"></div></div>
+      <div class="bj-area"><div class="bj-label">Tu <span id="bj-player-val"></span></div><div id="bj-player-hands"></div></div>
+      <div id="bj-msg" class="bj-msg"></div>
+    </div>
+    <div id="bj-betbox" style="border:1px solid var(--line);border-radius:16px;padding:24px;background:var(--panel);max-width:420px;margin-top:20px">
+      <label class="field-label">Aposta (pontos)</label>
+      <input id="bj-bet" type="number" min="1" value="100" class="field-input">
+      <button class="btn" id="bj-deal" style="width:100%;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206;font-size:16px">Repartir cartas</button>
+      <div class="bal-line" style="margin-top:12px">Saldo: <span id="bj-balance">—</span> pontos</div>
+    </div>
+    <div id="bj-actions" style="display:none;gap:10px;margin-top:20px;flex-wrap:wrap;max-width:560px">
+      <button class="btn bj-act" id="bj-hit">Pedir carta</button>
+      <button class="btn bj-act" id="bj-stand">Ficar</button>
+      <button class="btn bj-act" id="bj-double">Dobrar</button>
+      <button class="btn bj-act" id="bj-split">Dividir</button>
+      <button class="btn bj-act" id="bj-insurance">Seguro</button>
+    </div>
+    <div id="bj-again" style="display:none;margin-top:20px">
+      <button class="btn" id="bj-newgame" style="background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206">Jogar outra vez</button>
+    </div>
+  </div><!-- /screen-blackjack -->
+
+  </div><!-- /content -->
+
+  <footer class="foot">
+    <p class="foot-note">
+      O Jigadores promove entretenimento para maiores de 18 anos. O jogo pode ser viciante — joga com responsabilidade.
+      Este site não aceita apostas nem dinheiro, e os pontos dos jogos não têm qualquer valor real; as promoções ligam a parceiros externos com termos próprios.
+      © 2026 Jigadores. Todos os direitos reservados.
+    </p>
+  </footer>
+</div><!-- /main -->
+
+<!-- ============ MOBILE BOTTOM BAR ============ -->
+<nav class="mob-bar">
+  <div class="mob-item active" data-nav="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Início</div>
+  <div class="mob-item" data-nav="casinos" onclick="go('casinos')"><svg viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 010-4h12v4"/><path d="M4 6v12a2 2 0 002 2h14v-4"/></svg>Ofertas</div>
+  <div class="mob-item" data-nav="leaderboard" onclick="go('leaderboard')"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 01-10 0z"/></svg>Ranking</div>
+  <div class="mob-item" data-nav="lobby" onclick="go('lobby')"><svg viewBox="0 0 24 24"><path d="M17.5 5h-11A4.5 4.5 0 002 9.5L4 17a2 2 0 003.7.5L9 15h6l1.3 2.5A2 2 0 0020 17l2-7.5A4.5 4.5 0 0017.5 5z"/></svg>Jogos</div>
 </nav>
-
-<div id="screen-home">
-<header class="hero wrap">
-  <div class="chip c1">Streams diárias</div>
-  <div class="chip c2">Bónus exclusivos</div>
-  <div class="chip c3">Jogos da comunidade</div>
-  <div class="live-badge rv"><span class="live-dot"></span> AO VIVO AGORA · vê o stream</div>
-  <h1 class="rv d1">A casa do<br><span class="grad">JIGADORES</span></h1>
-  <p class="rv d2">Streams ao vivo, promoções exclusivas com os melhores parceiros, e jogos com os teus pontos do canal só por diversão.</p>
-  <div class="hero-cta rv d3">
-    <a href="#" class="btn btn-tw btn-xl" id="btn-login-hero">▶ Entrar com Twitch</a>
-    <a href="#" onclick="goToPromos();return false" class="btn btn-ghost btn-xl">Ver promoções</a>
-  </div>
-  <div class="stats rv d4">
-    <div class="stat"><div class="n">15.3K</div><div class="l">Seguidores</div></div>
-    <div class="stat"><div class="n">1000+</div><div class="l">Horas transmitidas</div></div>
-  </div>
-</header>
-
-<section id="watch" class="wrap">
-  <div class="eyebrow">Em direto</div>
-  <h2 class="s-title">Vê onde quiseres</h2>
-  <p class="s-sub">Acompanha as streams ao vivo e nunca percas uma sessão. Escolhe a tua plataforma.</p>
-  <div class="live-grid">
-    <div class="player">
-      <div class="play"></div>
-      <div class="ov">stream incorporada aqui (Twitch)</div>
-    </div>
-    <div class="chan-list">
-      <a class="chan" href="https://www.twitch.tv/jigadores" target="_blank" rel="noopener"><div class="ic tw">TW</div><div><div class="nm">Twitch</div><div class="sub">Streams principais · ao vivo</div></div></a>
-      <a class="chan" href="https://discord.gg/Mw8ZzTfB" target="_blank" rel="noopener"><div class="ic dc">DC</div><div><div class="nm">Discord</div><div class="sub">Comunidade & chat</div></div></a>
-      <a class="chan" href="https://t.me/+J4RYmtnV9gAyY2Zk" target="_blank" rel="noopener" id="lnk-tg-row"><div class="ic tg">TG</div><div><div class="nm">Telegram</div><div class="sub">Avisos & códigos exclusivos</div></div></a>
-      <a class="chan" href="https://www.instagram.com/jigadores" target="_blank" rel="noopener"><div class="ic ig">IG</div><div><div class="nm">Instagram</div><div class="sub">Clips & bastidores</div></div></a>
-    </div>
-  </div>
-</section>
-
-<section id="promos" class="wrap">
-  <div class="eyebrow">Parceiros oficiais</div>
-  <h2 class="s-title">Promoções exclusivas</h2>
-  <p class="s-sub">Ofertas negociadas para a comunidade. Só para maiores de 18 anos — joga com responsabilidade.</p>
-  <div class="promo-grid">
-    <div class="promo rv d1">
-      <div class="tag">Bónus de boas-vindas</div>
-      <h3>Freshbet</h3>
-      <div class="desc">150% de bónus até 500$ no teu primeiro depósito. Casino + sportsbook com levantamentos rápidos.</div>
-      <div class="promo-badges">
-        <span class="promo-badge ok">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
-          Levantamento rápido
-        </span>
-        <span class="promo-badge ok">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
-          Aceita crypto
-        </span>
-      </div>
-      <a class="btn go" href="https://go.affision.com/visit/?bta=48995&nci=5520" target="_blank" rel="noopener nofollow">Abrir Freshbet →</a>
-    </div>
-  </div>
-</section>
-
-</div><!-- /screen-home -->
-
-<!-- ECRÃ: LOBBY DE JOGOS -->
-<div id="screen-lobby" style="display:none">
-<section class="wrap" style="padding-top:50px">
-  <a href="#" onclick="showScreen('home');return false" style="color:var(--muted);font-size:14px">← Voltar ao início</a>
-  <div class="eyebrow" style="margin-top:18px">Jogos da comunidade</div>
-  <h2 class="s-title">Escolhe um jogo</h2>
-  <p class="s-sub">Joga com os teus pontos do canal, só por diversão. Entra com a Twitch para jogar.</p>
-  <div id="lobby-locked" style="padding:30px;border:1px solid var(--line);border-radius:16px;background:var(--panel);text-align:center;color:var(--muted);margin-bottom:24px;display:none">
-    Entra com a Twitch para jogares com os teus pontos.
-  </div>
-  <div class="game-cards">
-    <div class="game-card" onclick="openGame('coinflip')">
-      <div class="gc-ic">🪙</div>
-      <h3>Coinflip</h3>
-      <p>Cara ou coroa. Acertas, dobras. Falhas, perdes.</p>
-      <span class="gc-go">Jogar →</span>
-    </div>
-    <div class="game-card" onclick="openGame('roulette')">
-      <div class="gc-ic">🎡</div>
-      <h3>Roleta</h3>
-      <p>Roleta europeia. Cores, números, dúzias e mais.</p>
-      <span class="gc-go">Jogar →</span>
-    </div>
-    <div class="game-card" onclick="openGame('blackjack')">
-      <div class="gc-ic">🃏</div>
-      <h3>Blackjack</h3>
-      <p>Chega a 21 sem rebentar. Contra a casa.</p>
-      <span class="gc-go">Jogar →</span>
-    </div>
-  </div>
-</section>
-</div><!-- /screen-lobby -->
-
-<!-- ECRÃ: COINFLIP -->
-<div id="screen-coinflip" style="display:none">
-<section class="wrap" style="padding-top:50px">
-  <a href="#" onclick="showScreen('lobby');return false" style="color:var(--muted);font-size:14px">← Voltar aos jogos</a>
-  <h2 class="s-title" style="margin-top:18px">🪙 Coinflip</h2>
-  <div style="border:1px solid var(--line);border-radius:20px;padding:30px;background:linear-gradient(160deg,var(--panel),#0c0918);max-width:460px;margin-top:20px">
-    <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Cara ou coroa. Acertas, dobras a aposta. Falhas, perde-la.</p>
-    <div class="coin-stage">
-      <div id="coin" class="coin">
-        <div class="coin-face coin-heads">CARA</div>
-        <div class="coin-face coin-tails">COROA</div>
-      </div>
-    </div>
-    <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
-    <input id="cf-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:16px">
-    <div style="display:flex;gap:12px;margin-bottom:18px">
-      <button class="btn" id="cf-heads" style="flex:1;justify-content:center;background:rgba(255,196,66,.12);color:var(--gold);border:1px solid rgba(255,196,66,.4)">Cara</button>
-      <button class="btn" id="cf-tails" style="flex:1;justify-content:center;background:rgba(177,75,255,.12);color:var(--neon);border:1px solid rgba(177,75,255,.4)">Coroa</button>
-    </div>
-    <div id="cf-result" style="text-align:center;font-family:'Chakra Petch';font-size:18px;min-height:48px;display:flex;align-items:center;justify-content:center"></div>
-    <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px">Saldo: <span id="cf-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
-  </div>
-</section>
-</div><!-- /screen-coinflip -->
-
-<!-- ECRÃ: ROLETA -->
-<div id="screen-roulette" style="display:none">
-<section class="wrap" style="padding-top:50px">
-  <a href="#" onclick="showScreen('lobby');return false" style="color:var(--muted);font-size:14px">← Voltar aos jogos</a>
-  <h2 class="s-title" style="margin-top:18px">🎡 Roleta</h2>
-
-  <div class="roul-layout">
-    <!-- RODA -->
-    <div class="roul-wheel-box">
-      <div id="ball-orbit" class="ball-orbit"><div class="ball"></div></div>
-      <div id="wheel" class="wheel"></div>
-      <div class="wheel-center">
-        <div id="rl-number-big">—</div>
-        <div style="font-size:11px;color:var(--muted);letter-spacing:.1em">RESULTADO</div>
-      </div>
-    </div>
-
-    <!-- CONTROLOS -->
-    <div class="roul-controls">
-      <div class="roul-chips">
-        <span style="font-size:12px;color:var(--muted)">Ficha:</span>
-        <button class="chip-btn active" data-chip="10">10</button>
-        <button class="chip-btn" data-chip="50">50</button>
-        <button class="chip-btn" data-chip="100">100</button>
-        <button class="chip-btn" data-chip="500">500</button>
-        <button class="chip-btn" data-chip="1000">1K</button>
-      </div>
-      <div class="roul-bet-info">
-        Aposta total: <span id="rl-total-bet" style="color:var(--gold);font-weight:700">0</span> ·
-        Saldo: <span id="rl-balance" style="color:var(--gold);font-weight:700">—</span>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-        <button class="btn" id="rl-spin" style="flex:1;justify-content:center;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206;font-size:16px">🎡 Rodar</button>
-        <button class="btn" id="rl-clear" style="background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt)">Limpar</button>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:10px">
-        <button class="btn" id="rl-repeat" style="flex:1;justify-content:center;background:rgba(177,75,255,.12);border:1px solid rgba(177,75,255,.4);color:var(--neon);font-size:14px">↺ Repetir</button>
-        <button class="btn" id="rl-double" style="flex:1;justify-content:center;background:rgba(39,224,255,.1);border:1px solid rgba(39,224,255,.4);color:var(--cyan);font-size:14px">×2 Dobrar</button>
-      </div>
-      <div id="rl-result" style="text-align:center;font-family:'Chakra Petch';font-size:17px;min-height:40px;display:flex;align-items:center;justify-content:center;margin-top:10px"></div>
-    </div>
-  </div>
-
-  <!-- MESA DE APOSTAS -->
-  <div class="roul-table-wrap">
-    <div class="roul-table">
-      <div class="bet-zero" data-t="number" data-v="0">0</div>
-      <div class="numbers-grid" id="numbers-grid"></div>
-      <div class="col-bets">
-        <div class="bet-cell side" data-t="column" data-v="c3">2:1</div>
-        <div class="bet-cell side" data-t="column" data-v="c2">2:1</div>
-        <div class="bet-cell side" data-t="column" data-v="c1">2:1</div>
-      </div>
-    </div>
-    <div class="roul-outside">
-      <div class="bet-cell" data-t="dozen" data-v="d1">1ª dúzia</div>
-      <div class="bet-cell" data-t="dozen" data-v="d2">2ª dúzia</div>
-      <div class="bet-cell" data-t="dozen" data-v="d3">3ª dúzia</div>
-    </div>
-    <div class="roul-outside">
-      <div class="bet-cell" data-t="half" data-v="low">1-18</div>
-      <div class="bet-cell" data-t="parity" data-v="even">Par</div>
-      <div class="bet-cell red-cell" data-t="color" data-v="red">Vermelho</div>
-      <div class="bet-cell black-cell" data-t="color" data-v="black">Preto</div>
-      <div class="bet-cell" data-t="parity" data-v="odd">Ímpar</div>
-      <div class="bet-cell" data-t="half" data-v="high">19-36</div>
-    </div>
-  </div>
-  <p style="color:var(--muted);font-size:12px;margin-top:14px;text-align:center">Clica numa ficha, depois nas zonas da mesa para apostar. Podes apostar em várias ao mesmo tempo.</p>
-</section>
-</div><!-- /screen-roulette -->
-
-<!-- ECRÃ: BLACKJACK -->
-<div id="screen-blackjack" style="display:none">
-<section class="wrap" style="padding-top:50px">
-  <a href="#" onclick="showScreen('lobby');return false" style="color:var(--muted);font-size:14px">← Voltar aos jogos</a>
-  <h2 class="s-title" style="margin-top:18px">🃏 Blackjack</h2>
-
-  <div class="bj-table">
-    <!-- dealer -->
-    <div class="bj-area">
-      <div class="bj-label">Dealer <span id="bj-dealer-val"></span></div>
-      <div id="bj-dealer-cards" class="bj-cards"></div>
-    </div>
-    <!-- jogador -->
-    <div class="bj-area">
-      <div class="bj-label">Tu <span id="bj-player-val"></span></div>
-      <div id="bj-player-hands"></div>
-    </div>
-    <div id="bj-msg" class="bj-msg"></div>
-  </div>
-
-  <!-- controlos de aposta (antes de começar) -->
-  <div id="bj-betbox" style="border:1px solid var(--line);border-radius:16px;padding:24px;background:var(--panel);max-width:420px;margin-top:20px">
-    <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">Aposta (pontos)</label>
-    <input id="bj-bet" type="number" min="1" value="100" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:16px">
-    <button class="btn" id="bj-deal" style="width:100%;justify-content:center;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206;font-size:16px">Repartir cartas</button>
-    <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:12px">Saldo: <span id="bj-balance" style="color:var(--gold);font-weight:700">—</span> pontos</div>
-  </div>
-
-  <!-- ações durante o jogo -->
-  <div id="bj-actions" style="display:none;gap:10px;margin-top:20px;flex-wrap:wrap;max-width:560px">
-    <button class="btn bj-act" id="bj-hit">Pedir carta</button>
-    <button class="btn bj-act" id="bj-stand">Ficar</button>
-    <button class="btn bj-act" id="bj-double">Dobrar</button>
-    <button class="btn bj-act" id="bj-split">Dividir</button>
-    <button class="btn bj-act" id="bj-insurance">Seguro</button>
-  </div>
-  <div id="bj-again" style="display:none;margin-top:20px">
-    <button class="btn" id="bj-newgame" style="background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206">Jogar outra vez</button>
-  </div>
-</section>
-</div><!-- /screen-blackjack -->
-
-<footer class="wrap">
-  <div class="age">18+</div>
-  <div class="foot-soc">
-    <a title="Twitch" href="https://www.twitch.tv/jigadores" target="_blank" rel="noopener">TW</a>
-    <a title="Discord" href="https://discord.gg/Mw8ZzTfB" target="_blank" rel="noopener">DC</a>
-    <a title="Telegram" href="https://t.me/+J4RYmtnV9gAyY2Zk" id="lnk-tg-foot" target="_blank" rel="noopener">TG</a>
-    <a title="Instagram" href="https://www.instagram.com/jigadores" target="_blank" rel="noopener">IG</a>
-  </div>
-  <p class="foot-note">
-    O Jigadores promove entretenimento para maiores de 18 anos. O jogo pode ser viciante — joga com responsabilidade.
-    Este site não aceita apostas nem dinheiro; as promoções ligam a parceiros externos com termos próprios.
-    © 2026 Jigadores. Todos os direitos reservados.
-  </p>
-</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// --- Ligação à Supabase ---
+// --- Ligação à Supabase (protegida: se o browser bloquear, o site continua a funcionar) ---
 const SUPABASE_URL = "https://gtvjvaenmtdatbmgcimr.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RzjL7nd7qU4ZsOA-FhM-pQ_LkKmc14N";
-// Protegido: se o browser bloquear a biblioteca Supabase (Tracking Prevention,
-// adblockers, etc.), o site NÃO pode partir todo. Aqui criamos o cliente com
-// cuidado — se falhar, sb fica null e o resto do site (navegação, jogos,
-// promoções) continua a funcionar; só o login com Twitch é que fica indisponível.
 let sb = null;
 try {
   if (typeof supabase !== "undefined" && supabase.createClient) {
     sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   } else {
-    console.warn("Supabase não carregou (provavelmente bloqueado pelo browser). O login fica indisponível, mas o resto do site funciona.");
+    console.warn("Supabase não carregou (bloqueado pelo browser). Login indisponível, resto do site funciona.");
   }
 } catch (e) {
   console.warn("Erro a iniciar a Supabase:", e, "— o site continua a funcionar sem login.");
 }
 
-// --- Backend dos pontos (StreamElements) ---
 const POINTS_API = "https://web-production-6d300.up.railway.app";
-
 const $ = id => document.getElementById(id);
 
-// estado da roleta (declarado cedo para o openGame poder usar)
+// estado da roleta
 let currentChip = 10;
 let bets = {};
 let lastBets = {};
 let rouletteBuilt = false;
 let spinning = false;
 
-// --- Troca de ecrãs (home / lobby / jogos) ---
-const SCREENS = ["home","lobby","coinflip","roulette","blackjack"];
+// ====== DADOS DAS OFERTAS (edita aqui para adicionar marcas) ======
+// grad = fundo do cabeçalho do card; badge = new|top|hot|null
+const OFFERS = [
+  {
+    name:"Freshbet", badge:"new", grad:"linear-gradient(135deg,#3a1f6e,#6e2bd6 60%,#b14bff)",
+    bonus:"150% de bónus até 500$", tcs:"+18 | Aplicam-se T&C",
+    minDeposit:"20$", code:"—", bonusValue:"150%", freeSpins:"—", freespinsTag:true,
+    badges:["Levantamento rápido","Aceita crypto"],
+    link:"https://go.affision.com/visit/?bta=48995&nci=5520"
+  },
+];
+
+function offerCard(o){
+  if(o.soon){
+    return `<div class="offer soon">
+      <div class="offer-img"><span class="brandname">${o.name}</span></div>
+      <div class="offer-body">
+        <div class="offer-bonus">Em breve</div>
+        <div class="offer-tcs">Nova oferta a caminho</div>
+        <div class="offer-cta">Brevemente</div>
+      </div></div>`;
+  }
+  const badgeHtml = o.badge ? `<div class="offer-badge badge-${o.badge}"><span class="bdot"></span>${o.badge.toUpperCase()}</div>` : "";
+  const fsTag = o.freespinsTag ? `<div class="fs-tag">Free spins</div>` : "";
+  const trust = (o.badges||[]).map(b=>`<span class="trust-badge"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>${b}</span>`).join("");
+  return `<div class="offer">
+    <div class="offer-img" style="background:${o.grad}">
+      ${badgeHtml}${fsTag}
+      <span class="brandname">${o.name}</span>
+    </div>
+    <div class="offer-body">
+      <div class="offer-bonus">${o.bonus}</div>
+      <div class="offer-tcs">${o.tcs}</div>
+      ${trust ? `<div class="trust-badges">${trust}</div>` : ""}
+      <div class="offer-rows">
+        <div class="offer-row"><span class="or-ic"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg></span><span><span class="or-k">Depósito mín.</span><br><span class="or-v">${o.minDeposit}</span></span></div>
+        <div class="offer-row"><span class="or-ic"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></span><span><span class="or-k">Código</span><br><span class="or-v">${o.code}</span></span></div>
+        <div class="offer-row"><span class="or-ic"><svg viewBox="0 0 24 24"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7"/></svg></span><span><span class="or-k">Valor bónus</span><br><span class="or-v">${o.bonusValue}</span></span></div>
+        <div class="offer-row"><span class="or-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><span class="or-k">Free spins</span><br><span class="or-v">${o.freeSpins}</span></span></div>
+      </div>
+      <a class="offer-cta" href="${o.link}" target="_blank" rel="noopener nofollow">Abrir ${o.name} →</a>
+    </div></div>`;
+}
+
+function renderOffers(){
+  const cards = OFFERS.map(offerCard).join("");
+  // home: featured row (real offers + 2 "em breve" para mostrar o layout)
+  const featured = OFFERS.map(offerCard).join("") +
+    offerCard({name:"?", soon:true}) + offerCard({name:"?", soon:true});
+  const fr = $("featured-row"); if(fr) fr.innerHTML = featured;
+  const fc = $("feat-count"); if(fc) fc.textContent = OFFERS.length;
+  // home promos grid
+  const pg = $("promos-grid"); if(pg) pg.innerHTML = cards;
+  // casinos page (real + em breve para encher a grelha)
+  const cg = $("casinos-grid");
+  if(cg) cg.innerHTML = cards + offerCard({name:"?", soon:true}) + offerCard({name:"?", soon:true}) + offerCard({name:"?", soon:true});
+}
+
+// ====== NAVEGAÇÃO (screens + sidebar) ======
+const SCREENS = ["home","casinos","leaderboard","lobby","coinflip","roulette","blackjack"];
+// que item da sidebar fica activo para cada screen
+const NAV_FOR_SCREEN = {home:"home",casinos:"casinos",leaderboard:"leaderboard",lobby:"lobby",coinflip:"lobby",roulette:"lobby",blackjack:"lobby"};
+
 function showScreen(name){
-  SCREENS.forEach(s=>{
-    const el = $("screen-"+s);
-    if(el) el.style.display = (s===name) ? "block" : "none";
+  SCREENS.forEach(s=>{ const el=$("screen-"+s); if(el) el.style.display=(s===name)?"block":"none"; });
+  // actualiza highlight da sidebar + barra mobile
+  const navKey = NAV_FOR_SCREEN[name] || name;
+  document.querySelectorAll(".nav-item, .mob-item").forEach(it=>{
+    it.classList.toggle("active", it.dataset.nav===navKey);
   });
   window.scrollTo(0,0);
 }
-// ir para a secção de promoções (mostra o home e faz scroll até lá)
+// navegar (usado pela sidebar e botões)
+function go(name){
+  showScreen(name);
+  if(name==="leaderboard") loadLeaderboard();
+  closeSidebar();
+}
+// ir para a secção de promoções dentro do home
 function goToPromos(){
   showScreen("home");
-  // espera o screen aparecer e depois faz scroll suave até às promos
-  requestAnimationFrame(()=>{
-    setTimeout(()=>{
-      const el = $("promos");
-      if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
-    }, 60);
-  });
+  document.querySelectorAll(".nav-item, .mob-item").forEach(it=>it.classList.toggle("active", it.dataset.nav==="promos"));
+  requestAnimationFrame(()=>{ setTimeout(()=>{ const el=$("promos"); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); }, 60); });
+  closeSidebar();
 }
-window.goToPromos = goToPromos;
-// abrir um jogo (só se tiver login)
+window.go = go; window.goToPromos = goToPromos; window.showScreen = showScreen;
+
+// abrir um jogo (só com login)
 function openGame(game){
   if(!window._token){
     showScreen("lobby");
-    const lk = $("lobby-locked"); if(lk) lk.style.display="block";
+    document.querySelectorAll(".nav-item, .mob-item").forEach(it=>it.classList.toggle("active", it.dataset.nav==="lobby"));
+    const lk=$("lobby-locked"); if(lk) lk.style.display="block";
     return;
   }
-  if(game==="roulette" && !rouletteBuilt){
-    buildWheel();
-    buildTable();
-    rouletteBuilt = true;
-  }
+  if(game==="roulette" && !rouletteBuilt){ buildWheel(); buildTable(); rouletteBuilt=true; }
   showScreen(game);
+  document.querySelectorAll(".nav-item, .mob-item").forEach(it=>it.classList.toggle("active", it.dataset.nav==="lobby"));
 }
-window.showScreen = showScreen;
 window.openGame = openGame;
+
+// ====== SIDEBAR MOBILE ======
+function openSidebar(){ $("sidebar").classList.add("open"); $("side-backdrop").classList.add("show"); }
+function closeSidebar(){ $("sidebar").classList.remove("open"); $("side-backdrop").classList.remove("show"); }
+window.openSidebar=openSidebar; window.closeSidebar=closeSidebar;
+
+// ====== LEADERBOARD ======
+// Tenta buscar o ranking ao backend. Se ainda não existir endpoint, mostra "em breve".
+// Quando criares /api/leaderboard no backend (lista [{name, score}]), aparece sozinho.
+async function loadLeaderboard(){
+  const box = $("lb-content");
+  box.innerHTML = `<div class="lb-empty"><div class="le-ic">⏳</div><h3>A carregar…</h3></div>`;
+  let data = null;
+  try{
+    const r = await fetch(`${POINTS_API}/api/leaderboard?period=week`);
+    if(r.ok) data = await r.json();
+  }catch(e){ /* endpoint ainda não existe */ }
+
+  const rows = (data && Array.isArray(data) ? data : (data && data.leaderboard) || []);
+  if(!rows || rows.length===0){
+    box.innerHTML = `<div class="lb-empty">
+      <div class="le-ic">🏆</div>
+      <h3>Ranking em breve</h3>
+      <p>Assim que os jogos da casa começarem a contar pontos, os melhores jogadores da semana aparecem aqui — só por diversão.</p>
+    </div>`;
+    return;
+  }
+
+  // top 3 -> pódio (ordem visual: 2º, 1º, 3º)
+  const top = rows.slice(0,3);
+  const rest = rows.slice(3,10);
+  // avatar robusto: iniciais com gradiente (sem depender de serviço externo)
+  const initials = (n)=>{ n=(n||"?").trim(); const p=n.split(/\s+/); return ((p[0]?.[0]||"")+(p[1]?.[0]||p[0]?.[1]||"")).toUpperCase(); };
+  const avGrad = (n)=>{ let h=0; for(const c of (n||"x")) h=(h*31+c.charCodeAt(0))%360; return `linear-gradient(135deg,hsl(${h},70%,55%),hsl(${(h+50)%360},70%,40%))`; };
+  const podOrder = [top[1], top[0], top[2]];
+  const podCls = ["p2","p1","p3"];
+  const rankNum = [2,1,3];
+  let podHtml = `<div class="podium">`;
+  podOrder.forEach((p,i)=>{
+    if(!p){ podHtml += `<div></div>`; return; }
+    podHtml += `<div class="pod ${podCls[i]}">
+      <div class="pod-av" style="background:${avGrad(p.name)}">${initials(p.name)}</div>
+      <div class="pod-name">${p.name}</div>
+      <div class="pod-base"><div class="pod-rank">${rankNum[i]}</div>
+        <div class="pod-score-k">Pontos</div><div class="pod-score">${Number(p.score||0).toLocaleString("pt-PT")}</div>
+      </div></div>`;
+  });
+  podHtml += `</div>`;
+
+  let listHtml = "";
+  if(rest.length){
+    listHtml = `<div class="lb-list">` + rest.map((p,i)=>`
+      <div class="lb-row"><div class="lr-rank">${i+4}</div><div class="lr-name">${p.name}</div>
+      <div class="lr-score">${Number(p.score||0).toLocaleString("pt-PT")} pts</div></div>`).join("") + `</div>`;
+  }
+  box.innerHTML = podHtml + listHtml;
+}
 
 // vai buscar os pontos reais do StreamElements pelo nome de Twitch
 async function fetchPoints(twitchLogin){
@@ -596,10 +825,7 @@ async function fetchPoints(twitchLogin){
 async function loginTwitch(e){
   if(e) e.preventDefault();
   if(!sb){ alert("O login está temporariamente indisponível. O teu browser pode estar a bloquear a ligação — tenta desativar a proteção de tracking para este site, ou usa outro browser."); return; }
-  await sb.auth.signInWithOAuth({
-    provider: "twitch",
-    options: { redirectTo: window.location.origin }
-  });
+  await sb.auth.signInWithOAuth({ provider:"twitch", options:{ redirectTo: window.location.origin } });
 }
 async function logout(e){
   if(e) e.preventDefault();
@@ -610,13 +836,12 @@ async function logout(e){
 
 // --- Mostrar estado (logado / deslogado) ---
 async function refreshUser(){
-  if(!sb) return;  // sem Supabase não há sessão para mostrar; site continua a funcionar
+  if(!sb) return;
   const { data:{ session } } = await sb.auth.getSession();
   const loginBtns = [$("btn-login"), $("btn-login-hero")];
   if(session){
     const u = session.user;
     const meta = u.user_metadata || {};
-    // o nome de Twitch (login) — usado para buscar os pontos no StreamElements
     const twitchLogin = meta.nickname || meta.preferred_username || meta.user_name || meta.name || "";
     const name = meta.full_name || meta.name || twitchLogin || "Jogador";
     const avatar = meta.avatar_url || meta.picture || "";
@@ -624,32 +849,29 @@ async function refreshUser(){
     if(avatar) $("u-avatar").src = avatar;
     $("user-box").style.display = "flex";
     loginBtns.forEach(b=>{ if(b) b.style.display="none"; });
-    // guarda o token para os jogos (mandado ao backend para confirmar identidade)
     window._token = session.access_token;
-    const lk = $("lobby-locked"); if(lk) lk.style.display = "none";
-    // busca os pontos reais do StreamElements
+    const lk=$("lobby-locked"); if(lk) lk.style.display="none";
     $("u-points").textContent = "…";
     const pts = await fetchPoints(twitchLogin);
     const shown = (pts!=null) ? pts : 0;
-    $("u-points").textContent = shown.toLocaleString("pt-PT");
-    $("cf-balance").textContent = shown.toLocaleString("pt-PT");
-    const rb = $("rl-balance"); if(rb) rb.textContent = shown.toLocaleString("pt-PT");
-    const bb = $("bj-balance"); if(bb) bb.textContent = shown.toLocaleString("pt-PT");
+    const fmt = shown.toLocaleString("pt-PT");
+    $("u-points").textContent = fmt;
+    $("cf-balance").textContent = fmt;
+    const rb=$("rl-balance"); if(rb) rb.textContent=fmt;
+    const bb=$("bj-balance"); if(bb) bb.textContent=fmt;
   }else{
     window._token = null;
-    const lk = $("lobby-locked"); if(lk) lk.style.display = "block";
+    const lk=$("lobby-locked"); if(lk) lk.style.display="block";
     $("user-box").style.display = "none";
     loginBtns.forEach(b=>{ if(b) b.style.display=""; });
   }
 }
 
-// liga os botões
 [$("btn-login"), $("btn-login-hero")].forEach(b=>{ if(b) b.addEventListener("click", loginTwitch); });
 $("btn-logout").addEventListener("click", logout);
 
 // --- Coinflip ---
 function setCoinFace(face){
-  // face final: heads = 0deg, tails = 180deg (+ voltas para efeito)
   const coin = $("coin");
   const turns = 5;
   const deg = turns*360 + (face==="tails" ? 180 : 0);
@@ -662,7 +884,6 @@ async function playCoinflip(choice){
   if(bet < 1){ $("cf-result").textContent = "Aposta pelo menos 1 ponto."; return; }
   const hBtn=$("cf-heads"), tBtn=$("cf-tails");
   hBtn.disabled=tBtn.disabled=true;
-  // arranca a moeda a girar rápido
   const coin = $("coin");
   coin.style.transition = "none";
   coin.style.transform = "rotateY(0deg)";
@@ -680,10 +901,8 @@ async function playCoinflip(choice){
       $("cf-result").innerHTML = `<span style="color:var(--down)">${d.error||"erro"}</span>`;
       hBtn.disabled=tBtn.disabled=false; return;
     }
-    // pára o giro rápido e faz a moeda aterrar na face certa
     coin.classList.remove("flipping");
     setCoinFace(d.result);
-    // mostra o resultado depois da aterragem (1.6s)
     setTimeout(()=>{
       const saiu = d.result==="heads" ? "Cara" : "Coroa";
       if(d.won){
@@ -713,20 +932,16 @@ function cardHtml(c){
 }
 function renderBlackjack(d){
   bjGame = d;
-  // dealer
   $("bj-dealer-cards").innerHTML = d.dealer.cards.map(cardHtml).join("");
   $("bj-dealer-val").textContent = d.dealer.value!=null ? d.dealer.value : "";
-  // mãos do jogador
   const multi = d.hands.length>1;
   $("bj-player-hands").innerHTML = d.hands.map((h,i)=>{
     const active = (d.status==="playing" && i===d.active_hand);
     const info = multi ? `<div class="bj-hand-info">Mão ${i+1} · aposta ${h.bet}${h.result?' · '+resultWord(h.result):''}</div>` : "";
     return `${info}<div class="bj-hand ${active?'active':''}">${h.cards.map(cardHtml).join("")}</div>`;
   }).join("");
-  // valor da mão ativa (ou primeira)
   const ph = d.hands[d.active_hand] || d.hands[0];
   $("bj-player-val").textContent = ph.value;
-  // saldo
   if(d.balance!=null){
     const b = d.balance.toLocaleString("pt-PT");
     $("bj-balance").textContent=b; $("cf-balance").textContent=b;
@@ -738,16 +953,12 @@ function renderBlackjack(d){
     $("bj-actions").style.display="flex";
     $("bj-again").style.display="none";
     $("bj-msg").textContent="";
-    // Pedir carta e Ficar estão SEMPRE disponíveis durante o jogo.
-    // (a bjAction desativa tudo enquanto espera a resposta; aqui reativamos.)
     $("bj-hit").disabled = false;
     $("bj-stand").disabled = false;
-    // estas três dependem da mão: só ativas quando o backend permite
     $("bj-double").disabled = !d.can_double;
     $("bj-split").disabled = !d.can_split;
     $("bj-insurance").disabled = !d.can_insurance;
   }else{
-    // terminou
     $("bj-actions").style.display="none";
     $("bj-again").style.display="block";
     showBjResult(d);
@@ -806,7 +1017,6 @@ $("bj-newgame").addEventListener("click", ()=>{
 });
 
 // --- ROLETA REALISTA ---
-// ordem real da roda europeia (sentido horário a partir do 0)
 const WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
 const RED_SET = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
@@ -814,7 +1024,6 @@ function buildWheel(){
   const wheel = $("wheel");
   const n = WHEEL_ORDER.length;
   const seg = 360/n;
-  // setores
   let stops = [];
   for(let i=0;i<n;i++){
     const num = WHEEL_ORDER[i];
@@ -822,17 +1031,16 @@ function buildWheel(){
     stops.push(`${col} ${seg*i}deg ${seg*(i+1)}deg`);
   }
   wheel.style.background = `conic-gradient(${stops.join(",")})`;
-  // números posicionados com trigonometria (preciso e centrado em cada fatia)
-  const R = 150;            // raio da roda (300/2)
-  const radius = R - 20;    // distância do centro a que fica o número
+  const R = 150;
+  const radius = R - 20;
   let html = "";
   for(let i=0;i<n;i++){
     const num = WHEEL_ORDER[i];
-    const angDeg = seg*i + seg/2 - 90;   // -90 para o 0 ficar no topo
+    const angDeg = seg*i + seg/2 - 90;
     const angRad = angDeg * Math.PI/180;
     const x = R + radius*Math.cos(angRad);
     const y = R + radius*Math.sin(angRad);
-    const rot = seg*i + seg/2;           // roda o número a acompanhar a fatia
+    const rot = seg*i + seg/2;
     html += `<span style="position:absolute;left:${x}px;top:${y}px;
       transform:translate(-50%,-50%) rotate(${rot}deg);
       font-family:'Sora';font-weight:600;font-size:8px;color:#fff;line-height:1">${num}</span>`;
@@ -842,18 +1050,15 @@ function buildWheel(){
 
 function buildTable(){
   const grid = $("numbers-grid");
-  // 3 linhas: cima 3,6,9...36 / meio 2,5,...35 / baixo 1,4,...34
-  // a ordem da grelha vai coluna a coluna; usamos CSS grid 12x3
   let html = "";
   for(let row=0;row<3;row++){
     for(let col=0;col<12;col++){
-      const num = col*3 + (3-row); // row0->3,6.. row1->2,5.. row2->1,4..
+      const num = col*3 + (3-row);
       const cls = RED_SET.has(num) ? "red" : "black";
       html += `<div class="num-cell ${cls}" data-t="number" data-v="${num}" style="grid-column:${col+1};grid-row:${row+1}">${num}</div>`;
     }
   }
   grid.innerHTML = html;
-  // liga clique a TODAS as zonas (números + fora)
   document.querySelectorAll("#screen-roulette [data-t]").forEach(el=>{
     el.addEventListener("click", ()=>{
       if(spinning) return;
@@ -867,7 +1072,6 @@ function betKey(t,v){ return t+":"+v; }
 function placeBet(t,v,el){
   const k = betKey(t,v);
   bets[k] = (bets[k]||0) + currentChip;
-  // mostra/atualiza ficha na zona
   let chip = el.querySelector(".placed-chip");
   if(!chip){ chip = document.createElement("div"); chip.className="placed-chip"; el.appendChild(chip); }
   chip.textContent = bets[k];
@@ -878,7 +1082,6 @@ function clearBets(){
   document.querySelectorAll("#screen-roulette .placed-chip").forEach(c=>c.remove());
   updateBetTotal();
 }
-// repinta as fichas na mesa a partir do objeto 'bets'
 function redrawChips(){
   document.querySelectorAll("#screen-roulette .placed-chip").forEach(c=>c.remove());
   for(const k in bets){
@@ -893,14 +1096,12 @@ function redrawChips(){
   }
   updateBetTotal();
 }
-// repetir as apostas da jogada anterior
 function repeatBets(){
   if(spinning) return;
   if(Object.keys(lastBets).length===0){ $("rl-result").textContent="Não há jogada anterior para repetir."; return; }
   bets = JSON.parse(JSON.stringify(lastBets));
   redrawChips();
 }
-// dobrar tudo o que está na mesa
 function doubleBets(){
   if(spinning) return;
   if(Object.keys(bets).length===0){ $("rl-result").textContent="Põe apostas primeiro para dobrar."; return; }
@@ -916,24 +1117,16 @@ function spinWheelTo(number){
   const seg = 360/n;
   const wheel = $("wheel");
   const orbit = $("ball-orbit");
-  // posição angular do centro da fatia do número (0 = topo)
   const numAngle = idx*seg + seg/2;
-  // a roda gira para a frente (várias voltas); a bola gira ao contrário e
-  // acaba exatamente sobre o número. Como a bola está no topo (0deg) do orbit,
-  // rodar o orbit em -numAngle (mais voltas) põe a bola sobre a fatia certa
-  // depois de a roda também ter rodado.
   const wheelTurns = 6, ballTurns = 10;
-  const wheelTarget = wheelTurns*360;                  // roda dá voltas e volta ao 0 visual
-  const ballTarget = ballTurns*360 + numAngle;         // bola acaba sobre o número
-
-  // reset sem animação
+  const wheelTarget = wheelTurns*360;
+  const ballTarget = ballTurns*360 + numAngle;
   wheel.style.transition = "none";  orbit.style.transition = "none";
   wheel.style.transform = "rotate(0deg)";  orbit.style.transform = "rotate(0deg)";
   void wheel.offsetWidth;
-  // anima
   wheel.style.transition = "transform 5s cubic-bezier(.17,.67,.12,.99)";
   orbit.style.transition = "transform 5s cubic-bezier(.17,.67,.12,.99)";
-  wheel.style.transform = `rotate(-${wheelTarget}deg)`;  // roda ao contrário da bola
+  wheel.style.transform = `rotate(-${wheelTarget}deg)`;
   orbit.style.transform = `rotate(${ballTarget}deg)`;
 }
 
@@ -942,17 +1135,13 @@ async function spinRoulette(){
   if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
   const stake = totalBet();
   if(stake < 1){ $("rl-result").textContent = "Faz pelo menos uma aposta."; return; }
-
-  // monta a lista de apostas para enviar ao backend
   const betList = Object.entries(bets).map(([k,amt])=>{
     const [t,v] = k.split(":");
     return { bet_type:t, bet_value:(t==="number"?parseInt(v):v), bet:amt };
   });
-
   spinning = true;
   $("rl-spin").disabled = true;
   $("rl-result").innerHTML = '<span style="color:var(--muted)">🎡 a rodar…</span>';
-
   try{
     const r = await fetch(`${POINTS_API}/api/play/roulette_multi`, {
       method:"POST",
@@ -964,9 +1153,7 @@ async function spinRoulette(){
       $("rl-result").innerHTML = `<span style="color:var(--down)">${d.error||"erro"}</span>`;
       spinning=false; $("rl-spin").disabled=false; return;
     }
-    // anima a roda até ao número que o servidor decidiu
     spinWheelTo(d.number);
-    // espera a animação (5s) e mostra o resultado
     setTimeout(()=>{
       const cores = {red:"Vermelho",black:"Preto",green:"Verde"};
       const corHex = d.color==="red" ? "#ff6b7e" : (d.color==="green" ? "#46e08a" : "#ece8ff");
@@ -980,7 +1167,7 @@ async function spinRoulette(){
       $("rl-balance").textContent = d.balance.toLocaleString("pt-PT");
       $("cf-balance").textContent = d.balance.toLocaleString("pt-PT");
       $("u-points").textContent = d.balance.toLocaleString("pt-PT");
-      lastBets = JSON.parse(JSON.stringify(bets));  // guarda para o "repetir"
+      lastBets = JSON.parse(JSON.stringify(bets));
       clearBets();
       spinning=false; $("rl-spin").disabled=false;
     }, 5200);
@@ -990,7 +1177,6 @@ async function spinRoulette(){
   }
 }
 
-// seleção de fichas
 document.querySelectorAll(".chip-btn").forEach(b=>{
   b.addEventListener("click", ()=>{
     document.querySelectorAll(".chip-btn").forEach(x=>x.classList.remove("active"));
@@ -1003,12 +1189,10 @@ $("rl-clear").addEventListener("click", ()=>{ if(!spinning) clearBets(); });
 $("rl-repeat").addEventListener("click", repeatBets);
 $("rl-double").addEventListener("click", doubleBets);
 
-// reage a login/logout e ao voltar da Twitch (só se a Supabase carregou)
-if(sb){
-  sb.auth.onAuthStateChange(()=>refreshUser());
-}
+// ====== ARRANQUE ======
+renderOffers();
+if(sb){ sb.auth.onAuthStateChange(()=>refreshUser()); }
 refreshUser();
 </script>
-
 </body>
 </html>
