@@ -113,6 +113,13 @@ section{position:relative;z-index:2;padding:70px 0}
 .code .v{font-family:"Chakra Petch";font-weight:700;color:var(--gold);font-size:18px;letter-spacing:.1em}
 .code .cp{font-size:12px;color:var(--muted);cursor:pointer;padding:5px 10px;border-radius:7px;background:rgba(255,196,66,.1)}
 .promo .go{width:100%;text-align:center;justify-content:center;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206}
+/* badges de confiança nas promos */
+.promo-badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.promo-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;
+  color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line);
+  padding:5px 10px;border-radius:999px;line-height:1}
+.promo-badge svg{width:12px;height:12px;flex-shrink:0}
+.promo-badge.ok{color:#5fd39a;border-color:rgba(95,211,154,.25);background:rgba(95,211,154,.07)}
 
 /* POINTS / shop teaser */
 .points{background:linear-gradient(150deg,rgba(177,75,255,.14),rgba(39,224,255,.06));
@@ -294,28 +301,23 @@ footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:50px
 <section id="promos" class="wrap">
   <div class="eyebrow">Parceiros oficiais</div>
   <h2 class="s-title">Promoções exclusivas</h2>
-  <p class="s-sub">Códigos e bónus negociados para a comunidade. Usa o código ao registares-te.</p>
+  <p class="s-sub">Ofertas negociadas para a comunidade. Só para maiores de 18 anos — joga com responsabilidade.</p>
   <div class="promo-grid">
     <div class="promo rv d1">
       <div class="tag">Bónus de boas-vindas</div>
-      <h3>Parceiro 1</h3>
-      <div class="desc">Bónus de depósito + rodadas grátis para novos jogadores com o código abaixo.</div>
-      <div class="code"><span class="v">JIGA1</span><span class="cp" onclick="navigator.clipboard&&navigator.clipboard.writeText('JIGA1');this.textContent='Copiado!'">copiar</span></div>
-      <a class="btn go">Abrir parceiro</a>
-    </div>
-    <div class="promo rv d2">
-      <div class="tag">Cashback</div>
-      <h3>Parceiro 2</h3>
-      <div class="desc">Recebe cashback nas tuas sessões. Exclusivo para quem entra pelo Jigadores.</div>
-      <div class="code"><span class="v">JIGA2</span><span class="cp" onclick="navigator.clipboard&&navigator.clipboard.writeText('JIGA2');this.textContent='Copiado!'">copiar</span></div>
-      <a class="btn go">Abrir parceiro</a>
-    </div>
-    <div class="promo rv d3">
-      <div class="tag">Sem depósito</div>
-      <h3>Parceiro 3</h3>
-      <div class="desc">Oferta especial sem depósito inicial. Condições no site do parceiro.</div>
-      <div class="code"><span class="v">JIGA3</span><span class="cp" onclick="navigator.clipboard&&navigator.clipboard.writeText('JIGA3');this.textContent='Copiado!'">copiar</span></div>
-      <a class="btn go">Abrir parceiro</a>
+      <h3>Freshbet</h3>
+      <div class="desc">150% de bónus até 500$ no teu primeiro depósito. Casino + sportsbook com levantamentos rápidos.</div>
+      <div class="promo-badges">
+        <span class="promo-badge ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+          Levantamento rápido
+        </span>
+        <span class="promo-badge ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+          Aceita crypto
+        </span>
+      </div>
+      <a class="btn go" href="https://go.affision.com/visit/?bta=48995&nci=5520" target="_blank" rel="noopener nofollow">Abrir Freshbet →</a>
     </div>
   </div>
 </section>
