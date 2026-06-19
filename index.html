@@ -708,7 +708,11 @@ function renderBlackjack(d){
     $("bj-actions").style.display="flex";
     $("bj-again").style.display="none";
     $("bj-msg").textContent="";
-    // ativa/desativa ações conforme permitido
+    // Pedir carta e Ficar estão SEMPRE disponíveis durante o jogo.
+    // (a bjAction desativa tudo enquanto espera a resposta; aqui reativamos.)
+    $("bj-hit").disabled = false;
+    $("bj-stand").disabled = false;
+    // estas três dependem da mão: só ativas quando o backend permite
     $("bj-double").disabled = !d.can_double;
     $("bj-split").disabled = !d.can_split;
     $("bj-insurance").disabled = !d.can_insurance;
