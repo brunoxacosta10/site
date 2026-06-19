@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JIGADORES · Streamer & Comunidade</title>
+<meta name="description" content="Jigadores — comunidade de streamers, jogos com pontos e as melhores ofertas.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ffd766%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ff8a2b%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2215%22%20fill%3D%22%23090614%22/%3E%3Crect%20x%3D%227%22%20y%3D%227%22%20width%3D%2250%22%20height%3D%2250%22%20rx%3D%2214%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2245%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2238%22%20fill%3D%22%232a1a05%22%20text-anchor%3D%22middle%22%3EJ%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Jigadores">
+<meta property="og:title" content="JIGADORES · Streamer &amp; Comunidade">
+<meta property="og:description" content="Comunidade de streamers, jogos com pontos e as melhores ofertas.">
+<meta property="og:image" content="https://d8j0ntlcm91z4.cloudfront.net/user_3F0xLEPPTt2WCGUtIkqVT9Fs93x/hf_20260619_053559_1ede04e7-a3a4-408e-902a-79b8d6ab0803.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="JIGADORES · Streamer &amp; Comunidade">
+<meta name="twitter:description" content="Comunidade de streamers, jogos com pontos e as melhores ofertas.">
+<meta name="twitter:image" content="https://d8j0ntlcm91z4.cloudfront.net/user_3F0xLEPPTt2WCGUtIkqVT9Fs93x/hf_20260619_053559_1ede04e7-a3a4-408e-902a-79b8d6ab0803.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Sora:wght@400;600;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -41,9 +52,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;z-index:60;
   background:linear-gradient(180deg,#0c0820,#090614);border-right:1px solid var(--line);
   display:flex;flex-direction:column;padding:22px 16px;overflow-y:auto}
-.side-logo{font-family:"Sora";font-weight:800;font-size:22px;letter-spacing:.02em;display:flex;align-items:center;gap:10px;padding:6px 8px 22px;cursor:pointer}
-.side-logo .dot{width:11px;height:11px;border-radius:50%;background:var(--gold);box-shadow:0 0 16px var(--gold);animation:pulse 1.8s infinite;flex-shrink:0}
-.side-logo span{background:linear-gradient(90deg,var(--gold),var(--gold-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.side-logo{display:flex;align-items:center;padding:2px 4px 18px;cursor:pointer}
+.side-logo img{width:100%;max-width:200px;height:auto;display:block;mix-blend-mode:screen;filter:drop-shadow(0 4px 18px rgba(255,160,40,.20))}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
 .side-promo{display:block;border-radius:14px;padding:14px 16px;margin-bottom:16px;position:relative;overflow:hidden;
@@ -387,7 +397,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 
 <!-- ============ SIDEBAR ============ -->
 <aside class="sidebar" id="sidebar">
-  <div class="side-logo" onclick="go('home')"><span class="dot"></span><span>JIGADORES</span></div>
+  <div class="side-logo" onclick="go('home')"><img src="https://d8j0ntlcm91z4.cloudfront.net/user_3F0xLEPPTt2WCGUtIkqVT9Fs93x/hf_20260619_053559_1ede04e7-a3a4-408e-902a-79b8d6ab0803.png" alt="Jigadores" loading="eager"></div>
 
   <div class="side-promo" onclick="go('casinos')">
     <div class="sp-k">Oferta em destaque</div>
