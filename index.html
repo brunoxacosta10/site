@@ -146,9 +146,31 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .offer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px}
 .offer{border-radius:18px;overflow:hidden;background:var(--panel);border:1px solid var(--line);transition:.25s;display:flex;flex-direction:column}
 .offer:hover{transform:translateY(-5px);border-color:rgba(255,196,66,.4);box-shadow:0 22px 50px rgba(0,0,0,.5)}
-.offer-img{height:150px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.offer-img .brandname{font-family:"Sora";font-weight:800;font-size:26px;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.6);z-index:2;letter-spacing:.02em;text-align:center;padding:0 16px}
-.offer-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(18,14,36,.85))}
+.offer-img{height:162px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;isolation:isolate}
+/* camada 1: textura de fichas + brilhos de profundidade + reflexo */
+.offer-img::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    linear-gradient(115deg,rgba(255,255,255,.16),transparent 30%),
+    radial-gradient(circle at 82% 14%,rgba(255,255,255,.22),transparent 44%),
+    radial-gradient(ellipse at 10% 100%,rgba(0,0,0,.30),transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.08' stroke-width='2'%3E%3Ccircle cx='21' cy='21' r='13' stroke-dasharray='3 4'/%3E%3Ccircle cx='63' cy='63' r='13' stroke-dasharray='3 4'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='21' cy='21' r='2.5'/%3E%3Ccircle cx='63' cy='63' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat:no-repeat,no-repeat,no-repeat,repeat;
+  background-size:cover,cover,cover,72px 72px}
+/* camada 2: reflexo que varre no hover */
+.card-shine{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.20) 46%,transparent 60%);
+  transform:translateX(-120%);transition:transform .75s ease}
+.offer:hover .card-shine{transform:translateX(120%)}
+/* camada 3: escurece em baixo para o texto se ler */
+.offer-img::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(180deg,transparent 42%,rgba(18,14,36,.86))}
+/* bloco do nome da marca */
+.brand-block{position:relative;z-index:3;text-align:center;padding:0 18px}
+.brand-eyebrow{font-family:"Chakra Petch";font-weight:700;font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(255,255,255,.72);margin-bottom:7px;display:flex;align-items:center;gap:9px;justify-content:center}
+.brand-eyebrow::before,.brand-eyebrow::after{content:"";height:1px;width:18px;background:rgba(255,255,255,.4)}
+.offer-img .brandname{font-family:"Sora";font-weight:800;font-size:28px;color:#fff;letter-spacing:.01em;line-height:1;
+  text-shadow:0 2px 22px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.4)}
 .offer-badge{position:absolute;top:12px;left:12px;z-index:3;font-family:"Chakra Petch";font-size:11px;font-weight:700;
   letter-spacing:.06em;padding:5px 11px;border-radius:30px;display:flex;align-items:center;gap:6px;text-transform:uppercase}
 .offer-badge .bdot{width:7px;height:7px;border-radius:50%}
@@ -678,7 +700,7 @@ let spinning = false;
 // grad = fundo do cabeçalho do card; badge = new|top|hot|null
 const OFFERS = [
   {
-    name:"Freshbet", badge:"new", grad:"linear-gradient(135deg,#3a1f6e,#6e2bd6 60%,#b14bff)",
+    name:"Freshbet", kind:"Casino & Sportsbook", badge:"new", grad:"linear-gradient(135deg,#3a1f6e,#6e2bd6 60%,#b14bff)",
     bonus:"150% de bónus até 500$", tcs:"+18 | Aplicam-se T&C",
     minDeposit:"20$", code:"—", bonusValue:"150%", freeSpins:"—", freespinsTag:true,
     badges:["Levantamento rápido","Aceita crypto"],
@@ -701,8 +723,12 @@ function offerCard(o){
   const trust = (o.badges||[]).map(b=>`<span class="trust-badge"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>${b}</span>`).join("");
   return `<div class="offer">
     <div class="offer-img" style="background:${o.grad}">
+      <span class="card-shine"></span>
       ${badgeHtml}${fsTag}
-      <span class="brandname">${o.name}</span>
+      <div class="brand-block">
+        <div class="brand-eyebrow">${o.kind || "Casino"}</div>
+        <div class="brandname">${o.name}</div>
+      </div>
     </div>
     <div class="offer-body">
       <div class="offer-bonus">${o.bonus}</div>
