@@ -1016,7 +1016,7 @@ function openGame(game){
   if(game==="roulette" && !rouletteBuilt){ buildWheel(); buildTable(); rouletteBuilt=true; }
   showScreen(game);
   if(game==="mines") mnBuildGrid();
-  if(game==="plinko") pkBuild();
+  if(game==="plinko"){ pkBuild(); pkBalance=pkReadBalance(); }
   if(game==="crash") crDrawInit();
   document.querySelectorAll(".nav-item, .mob-item").forEach(it=>it.classList.toggle("active", it.dataset.nav==="lobby"));
 }
@@ -1719,7 +1719,11 @@ const PK_TABLES = {
 function pkFmt(m){ return m>=1000 ? (m/1000)+"k×" : m+"×"; }
 let pkRisk = "medium";
 let pkMults = PK_TABLES[pkRisk];
-let pkBusy = false;
+let pkFlight = 0;            // nº de bolas no ar ao mesmo tempo
+let pkBalance = null;        // saldo local (segue apostas/ganhos em tempo real)
+const PK_MAX_FLIGHT = 20;    // limite de bolas simultâneas
+function pkReadBalance(){ const t=(($("u-points")&&$("u-points").textContent)||($("pk-balance")&&$("pk-balance").textContent)||"").replace(/[^0-9]/g,""); return t?parseInt(t):0; }
+function pkSetBalance(v){ pkBalance=v; const f=v.toLocaleString("pt-PT"); const pb=$("pk-balance"); if(pb)pb.textContent=f; const up=$("u-points"); if(up)up.textContent=f; }
 function pkGeom(){
   const board = $("pk-board");
   const W = board.clientWidth, H = board.clientHeight;
@@ -1741,9 +1745,6 @@ function pkBuild(){
       board.appendChild(peg);
     }
   }
-  const ball=document.createElement("div"); ball.className="pk-ball"; ball.id="pk-ball"; ball.style.opacity="0";
-  ball.style.left=g.cx+"px"; ball.style.top=g.pad+"px";
-  board.appendChild(ball);
   const sl=$("pk-slots"); sl.innerHTML="";
   pkMults.forEach((m,i)=>{
     const s=document.createElement("div"); s.className="pk-slot"; s.dataset.s=i;
@@ -1752,7 +1753,7 @@ function pkBuild(){
   });
 }
 function pkSetRisk(risk){
-  if(pkBusy) return;
+  if(pkFlight>0) return;
   if(!PK_TABLES[risk]) return;
   pkRisk = risk;
   pkMults = PK_TABLES[risk];
@@ -1761,13 +1762,15 @@ function pkSetRisk(risk){
 }
 async function pkDrop(){
   if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
-  if(pkBusy) return;
   const bet=parseInt($("pk-bet").value)||0;
   if(bet<1){ $("pk-result").innerHTML='<span style="color:var(--down)">Aposta pelo menos 1 ponto.</span>'; return; }
-  if(!$("pk-ball")) pkBuild();
-  pkBusy=true; $("pk-drop").disabled=true;
-  document.querySelectorAll("#pk-slots .pk-slot").forEach(s=>s.classList.remove("hit"));
-  $("pk-result").innerHTML='<span style="color:var(--muted)">a cair…</span>';
+  if(pkFlight>=PK_MAX_FLIGHT) return;
+  const board=$("pk-board"); if(board && !board.querySelector(".pk-peg")) pkBuild();
+  if(pkBalance==null) pkBalance=pkReadBalance();
+  if(bet>pkBalance){ $("pk-result").innerHTML='<span style="color:var(--down)">Saldo insuficiente.</span>'; return; }
+  // tira a aposta já (localmente) — podem estar várias bolas no ar
+  pkSetBalance(pkBalance - bet);
+  pkFlight++;
   try{
     const r=await fetch(`${POINTS_API}/api/play/plinko`,{
       method:"POST",
@@ -1775,34 +1778,44 @@ async function pkDrop(){
       body: JSON.stringify({bet, risk:pkRisk})
     });
     const d=await r.json();
-    if(!r.ok){ pkBusy=false; $("pk-drop").disabled=false; $("pk-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return; }
+    if(!r.ok){
+      if(pkBalance!=null) pkSetBalance(pkBalance + bet);   // devolve a aposta
+      pkFlight=Math.max(0,pkFlight-1);
+      $("pk-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`;
+      return;
+    }
     if(d.mults){ pkMults=d.mults; }
-    await pkAnimate(d.path, d.slot);
-    const slotEl = $("pk-slots").children[d.slot];
-    if(slotEl) slotEl.classList.add("hit");
+    await pkAnimate(d.path, d.slot);                       // bola nova, independente
+    if(pkBalance!=null) pkSetBalance(pkBalance + (d.payout||0));  // credita ao cair
+    pkFlight=Math.max(0,pkFlight-1);
+    const slotEl=$("pk-slots").children[d.slot];
+    if(slotEl){ slotEl.classList.add("hit"); setTimeout(()=>slotEl.classList.remove("hit"), 700); }
     if(d.delta>0) $("pk-result").innerHTML=`<span style="color:var(--ok)">×${d.mult} · ganhaste ${d.payout} 🎉</span>`;
     else if(d.delta===0) $("pk-result").innerHTML=`<span style="color:var(--muted)">×${d.mult} · recebeste ${d.payout}</span>`;
     else $("pk-result").innerHTML=`<span style="color:var(--down)">×${d.mult} · recebeste ${d.payout}</span>`;
-    pkUpdateBalance(d.balance);
-  }catch(e){ $("pk-result").innerHTML='<span style="color:var(--down)">falha de ligação</span>'; }
-  pkBusy=false; $("pk-drop").disabled=false;
+  }catch(e){
+    if(pkBalance!=null) pkSetBalance(pkBalance + bet);     // devolve a aposta
+    pkFlight=Math.max(0,pkFlight-1);
+    $("pk-result").innerHTML='<span style="color:var(--down)">falha de ligação</span>';
+  }
 }
 function pkAnimate(path, slot){
   return new Promise(res=>{
-    const ball=$("pk-ball"); if(!ball){ res(); return; }
+    const board=$("pk-board"); if(!board){ res(); return; }
     const g=pkGeom();
-    let k=0, r=0;
-    ball.style.transition="none"; ball.style.opacity="1";
+    const ball=document.createElement("div"); ball.className="pk-ball";
     ball.style.left=g.cx+"px"; ball.style.top=g.pad+"px";
+    board.appendChild(ball);
     void ball.offsetWidth;
     ball.style.transition="left .12s linear, top .12s ease-in";
+    let k=0, r=0;
     function step(){
       if(r>=path.length){
         const x=g.cx+(2*slot-PK_ROWS)*(g.slotW/2);
         ball.style.transition="left .12s linear, top .18s ease-in";
         ball.style.left=x+"px";
         ball.style.top=(g.H-6)+"px";
-        setTimeout(()=>{ ball.style.opacity="0"; res(); }, 200);
+        setTimeout(()=>{ ball.remove(); res(); }, 220);
         return;
       }
       k += path[r]; r++;
@@ -1813,7 +1826,7 @@ function pkAnimate(path, slot){
     setTimeout(step, 20);
   });
 }
-function pkUpdateBalance(b){ if(b==null)return; const f=b.toLocaleString("pt-PT"); $("pk-balance").textContent=f; const up=$("u-points"); if(up)up.textContent=f; }
+
 
 // ====== CRASH ======
 let crState=null;
