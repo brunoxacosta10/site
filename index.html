@@ -342,6 +342,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .pk-slots{display:flex;gap:3px;margin-bottom:16px}
 .pk-slot{flex:1;text-align:center;font-family:"Chakra Petch";font-weight:700;font-size:11px;padding:7px 2px;border-radius:8px;background:var(--panel);border:1px solid var(--line);transition:.2s}
 .pk-slot.hit{background:linear-gradient(180deg,var(--gold),var(--gold-2));color:#1a1206;transform:scale(1.12)}
+.pk-risk{display:flex;gap:8px;margin-bottom:14px}
+.pk-risk button{flex:1;padding:9px 4px;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:"Chakra Petch";font-weight:700;font-size:13px;cursor:pointer;transition:.18s}
+.pk-risk button:hover{border-color:rgba(255,196,66,.4);color:var(--txt)}
+.pk-risk button.active{background:linear-gradient(120deg,var(--neon),var(--neon-2));color:#fff;border-color:transparent}
 /* crash */
 .cr-stage{position:relative;width:100%;height:220px;border:1px solid var(--line);border-radius:14px;background:radial-gradient(120% 120% at 50% 100%,#1a1140,#0c0918);overflow:hidden;margin-bottom:16px}
 .cr-canvas{position:absolute;inset:0;width:100%;height:100%}
@@ -767,6 +771,11 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
     <h2 class="s-title" style="margin-bottom:18px">🟣 Plinko</h2>
     <div class="game-panel" style="max-width:520px">
       <p style="color:var(--muted);font-size:14px;margin-bottom:18px">Larga a bola pela tábua. Onde cair, é o teu multiplicador. As pontas pagam mais.</p>
+      <div class="pk-risk" id="pk-risk">
+        <button type="button" data-risk="low">Baixo</button>
+        <button type="button" data-risk="medium" class="active">Médio</button>
+        <button type="button" data-risk="high">Alto</button>
+      </div>
       <div id="pk-board" class="pk-board"></div>
       <div id="pk-slots" class="pk-slots"></div>
       <label class="field-label">Aposta (pontos)</label>
@@ -1131,7 +1140,7 @@ async function playCoinflip(choice){
     setTimeout(()=>{
       const saiu = d.result==="heads" ? "Cara" : "Coroa";
       if(d.won){
-        $("cf-result").innerHTML = `<span style="color:var(--ok)">Saiu ${saiu}! Ganhaste +${d.delta} 🎉</span>`;
+        $("cf-result").innerHTML = `<span style="color:var(--ok)">Saiu ${saiu}! Ganhaste ${bet*2} 🎉</span>`;
       }else{
         $("cf-result").innerHTML = `<span style="color:var(--down)">Saiu ${saiu}. Perdeste ${Math.abs(d.delta)} 😢</span>`;
       }
@@ -1385,7 +1394,7 @@ async function spinRoulette(){
       $("rl-number-big").textContent = d.number;
       $("rl-number-big").style.color = corHex;
       let msg = `Saiu <b style="color:${corHex}">${d.number} (${cores[d.color]})</b> — `;
-      if(d.delta > 0) msg += `<span style="color:var(--ok)">ganhaste +${d.delta} 🎉</span>`;
+      if(d.delta > 0) msg += `<span style="color:var(--ok)">ganhaste ${d.gross} 🎉</span>`;
       else if(d.delta < 0) msg += `<span style="color:var(--down)">perdeste ${Math.abs(d.delta)} 😢</span>`;
       else msg += `empate`;
       $("rl-result").innerHTML = msg;
@@ -1578,7 +1587,7 @@ async function mnReveal(i){
     tile.classList.add("gem"); tile.textContent="💎";
     mnState.mult = d.multiplier;
     if(d.cleared){
-      $("mn-result").innerHTML = `<span style="color:var(--ok)">Limpaste tudo! ×${d.multiplier.toFixed(2)} · +${d.delta} 🎉</span>`;
+      $("mn-result").innerHTML = `<span style="color:var(--ok)">Limpaste tudo! ×${d.multiplier.toFixed(2)} · ganhaste ${d.payout} 🎉</span>`;
       mnUpdateBalance(d.balance);
       mnEnd();
       return;
@@ -1607,7 +1616,7 @@ async function mnCashout(){
     $("mn-cash").disabled = false;
     if(!r.ok){ $("mn-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return; }
     mnRevealAllMines(d.mine_set, -1);
-    $("mn-result").innerHTML = `<span style="color:var(--ok)">Levantaste ×${d.multiplier.toFixed(2)} · +${d.delta} 🎉</span>`;
+    $("mn-result").innerHTML = `<span style="color:var(--ok)">Levantaste ×${d.multiplier.toFixed(2)} · ganhaste ${d.payout} 🎉</span>`;
     mnUpdateBalance(d.balance);
     mnEnd();
   }catch(e){ $("mn-cash").disabled=false; $("mn-result").innerHTML='<span style="color:var(--down)">falha de ligação</span>'; }
@@ -1626,7 +1635,13 @@ function mnUpdateBalance(b){
 
 // ====== PLINKO ======
 const PK_ROWS = 12;
-let pkMults = [14,4,2,1.4,1.1,0.8,0.5,0.8,1.1,1.4,2,4,14];
+const PK_TABLES = {
+  low:    [10,3,1.6,1.4,1.1,1,0.5,1,1.1,1.4,1.6,3,10],
+  medium: [26,6,2.4,1.4,1,0.8,0.7,0.8,1,1.4,2.4,6,26],
+  high:   [170,24,8.1,2,0.7,0.2,0.2,0.2,0.7,2,8.1,24,170]
+};
+let pkRisk = "medium";
+let pkMults = PK_TABLES[pkRisk];
 let pkBusy = false;
 function pkGeom(){
   const board = $("pk-board");
@@ -1659,6 +1674,14 @@ function pkBuild(){
     sl.appendChild(s);
   });
 }
+function pkSetRisk(risk){
+  if(pkBusy) return;
+  if(!PK_TABLES[risk]) return;
+  pkRisk = risk;
+  pkMults = PK_TABLES[risk];
+  document.querySelectorAll("#pk-risk button").forEach(b=>b.classList.toggle("active", b.dataset.risk===risk));
+  pkBuild();
+}
 async function pkDrop(){
   if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
   if(pkBusy) return;
@@ -1672,7 +1695,7 @@ async function pkDrop(){
     const r=await fetch(`${POINTS_API}/api/play/plinko`,{
       method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+window._token},
-      body: JSON.stringify({bet})
+      body: JSON.stringify({bet, risk:pkRisk})
     });
     const d=await r.json();
     if(!r.ok){ pkBusy=false; $("pk-drop").disabled=false; $("pk-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return; }
@@ -1680,9 +1703,9 @@ async function pkDrop(){
     await pkAnimate(d.path, d.slot);
     const slotEl = $("pk-slots").children[d.slot];
     if(slotEl) slotEl.classList.add("hit");
-    if(d.delta>0) $("pk-result").innerHTML=`<span style="color:var(--ok)">×${d.mult} · +${d.delta} 🎉</span>`;
-    else if(d.delta===0) $("pk-result").innerHTML=`<span style="color:var(--muted)">×${d.mult} · empate</span>`;
-    else $("pk-result").innerHTML=`<span style="color:var(--down)">×${d.mult} · ${d.delta}</span>`;
+    if(d.delta>0) $("pk-result").innerHTML=`<span style="color:var(--ok)">×${d.mult} · ganhaste ${d.payout} 🎉</span>`;
+    else if(d.delta===0) $("pk-result").innerHTML=`<span style="color:var(--muted)">×${d.mult} · recebeste ${d.payout}</span>`;
+    else $("pk-result").innerHTML=`<span style="color:var(--down)">×${d.mult} · recebeste ${d.payout}</span>`;
     pkUpdateBalance(d.balance);
   }catch(e){ $("pk-result").innerHTML='<span style="color:var(--down)">falha de ligação</span>'; }
   pkBusy=false; $("pk-drop").disabled=false;
@@ -1830,7 +1853,7 @@ async function crCashout(){
     if(d.cashed){
       $("cr-mult").textContent=Number(d.multiplier).toFixed(2)+"×";
       $("cr-mult").className="cr-mult win";
-      $("cr-result").innerHTML=`<span style="color:var(--ok)">Levantaste ×${Number(d.multiplier).toFixed(2)} · +${d.delta} 🎉</span>`;
+      $("cr-result").innerHTML=`<span style="color:var(--ok)">Levantaste ×${Number(d.multiplier).toFixed(2)} · ganhaste ${d.payout} 🎉</span>`;
       crUpdateBalance(d.balance);
     }else{
       $("cr-mult").textContent=(d.crash_point!=null?Number(d.crash_point).toFixed(2):"—")+"×";
@@ -1857,6 +1880,7 @@ window.mnLeave = mnLeave; window.crLeave = crLeave;
   const b1=$("mn-start"); if(b1) b1.addEventListener("click", mnStart);
   const b2=$("mn-cash");  if(b2) b2.addEventListener("click", mnCashout);
   const b3=$("pk-drop");  if(b3) b3.addEventListener("click", pkDrop);
+  document.querySelectorAll("#pk-risk button").forEach(b=> b.addEventListener("click", ()=>pkSetRisk(b.dataset.risk)));
   const b4=$("cr-action");if(b4) b4.addEventListener("click", crAction);
 })();
 
