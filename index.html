@@ -339,8 +339,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .pk-board{position:relative;width:100%;height:300px;margin-bottom:6px}
 .pk-peg{position:absolute;width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.32);transform:translate(-50%,-50%)}
 .pk-ball{position:absolute;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,var(--gold));box-shadow:0 0 12px var(--gold);transform:translate(-50%,-50%);z-index:3}
-.pk-slots{display:flex;gap:3px;margin-bottom:16px}
-.pk-slot{flex:1;text-align:center;font-family:"Chakra Petch";font-weight:700;font-size:11px;padding:7px 2px;border-radius:8px;background:var(--panel);border:1px solid var(--line);transition:.2s}
+.pk-slots{display:flex;gap:2px;margin-bottom:16px}
+.pk-slot{flex:1;min-width:0;text-align:center;font-family:"Chakra Petch";font-weight:700;font-size:9.5px;padding:6px 1px;border-radius:6px;background:var(--panel);border:1px solid var(--line);transition:.2s}
 .pk-slot.hit{background:linear-gradient(180deg,var(--gold),var(--gold-2));color:#1a1206;transform:scale(1.12)}
 .pk-risk{display:flex;gap:8px;margin-bottom:14px}
 .pk-risk button{flex:1;padding:9px 4px;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:"Chakra Petch";font-weight:700;font-size:13px;cursor:pointer;transition:.18s}
@@ -1679,12 +1679,13 @@ function mnUpdateBalance(b){
 }
 
 // ====== PLINKO ======
-const PK_ROWS = 12;
+const PK_ROWS = 16;
 const PK_TABLES = {
-  low:    [10,3,1.6,1.4,1.1,1,0.5,1,1.1,1.4,1.6,3,10],
-  medium: [26,6,2.4,1.4,1,0.8,0.7,0.8,1,1.4,2.4,6,26],
-  high:   [170,24,8.1,2,0.7,0.2,0.2,0.2,0.7,2,8.1,24,170]
+  low:    [16,9,2,1.4,1.4,1.2,1.1,1,0.5,1,1.1,1.2,1.4,1.4,2,9,16],
+  medium: [110,41,10,5,3,1.5,1,0.5,0.3,0.5,1,1.5,3,5,10,41,110],
+  high:   [1000,130,26,9,4,2,0.2,0.2,0.2,0.2,0.2,2,4,9,26,130,1000]
 };
+function pkFmt(m){ return m>=1000 ? (m/1000)+"k×" : m+"×"; }
 let pkRisk = "medium";
 let pkMults = PK_TABLES[pkRisk];
 let pkBusy = false;
@@ -1715,7 +1716,7 @@ function pkBuild(){
   const sl=$("pk-slots"); sl.innerHTML="";
   pkMults.forEach((m,i)=>{
     const s=document.createElement("div"); s.className="pk-slot"; s.dataset.s=i;
-    s.textContent=m+"×";
+    s.textContent=pkFmt(m);
     sl.appendChild(s);
   });
 }
@@ -1776,7 +1777,7 @@ function pkAnimate(path, slot){
       k += path[r]; r++;
       ball.style.left=(g.cx+(2*k-r)*(g.slotW/2))+"px";
       ball.style.top=(g.pad+r*g.rowGap)+"px";
-      setTimeout(step, 125);
+      setTimeout(step, 90);
     }
     setTimeout(step, 20);
   });
@@ -1883,16 +1884,23 @@ function crBust(cp, balance){
 }
 async function crCashout(){
   if(!crState||!crState.running) return;
+  // congela JÁ o multiplicador que o jogador vê e pára tudo (poll + animação)
+  const elapsed=(performance.now()-crState.startPerf)/1000;
+  let clickMult=Math.exp(crState.k*elapsed);
+  if(clickMult>100) clickMult=100;
+  clickMult=Math.round(clickMult*100)/100;
   const bet=crState.bet, id=crState.id;
+  crState.running=false;
+  crStop();
+  $("cr-mult").textContent=clickMult.toFixed(2)+"×";
   $("cr-action").disabled=true;
   try{
     const r=await fetch(`${POINTS_API}/api/play/crash/cashout`,{
       method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+window._token},
-      body: JSON.stringify({id})
+      body: JSON.stringify({id, mult:clickMult})
     });
     const d=await r.json();
-    if(crState) crState.running=false;
     crStop();
     if(!r.ok){ $("cr-action").disabled=false; $("cr-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; crReset(); return; }
     if(d.cashed){
