@@ -161,6 +161,18 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .hb-stats{display:flex;align-items:center;gap:22px;margin-top:30px;flex-wrap:wrap}
 .hb-stat .n{font-family:"Sora";font-weight:800;font-size:clamp(22px,2.3vw,28px);background:linear-gradient(90deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
 .hb-stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:3px}
+.hb-social{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.hb-soc{display:inline-flex;align-items:center;gap:9px;padding:8px 15px 8px 8px;border-radius:12px;background:var(--panel);border:1px solid var(--line);color:var(--txt);text-decoration:none;font-weight:600;font-size:14px;transition:.2s}
+.hb-soc:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,0,0,.45)}
+.hb-soc .hs-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:"Chakra Petch";font-weight:700;font-size:11px;color:#fff;flex-shrink:0;letter-spacing:.02em}
+.hb-soc.tw .hs-ic{background:#9146FF}
+.hb-soc.dc .hs-ic{background:#5865F2}
+.hb-soc.tg .hs-ic{background:#229ED9}
+.hb-soc.ig .hs-ic{background:linear-gradient(45deg,#f09433,#dc2743,#bc1888)}
+.hb-soc.tw:hover{border-color:#9146FF}
+.hb-soc.dc:hover{border-color:#5865F2}
+.hb-soc.tg:hover{border-color:#229ED9}
+.hb-soc.ig:hover{border-color:#dc2743}
 .hb-divider{width:1px;height:34px;background:linear-gradient(180deg,transparent,var(--line),transparent)}
 .hb-right{position:relative;display:flex;align-items:center;justify-content:center;min-height:300px}
 .hb-disc{position:relative;width:clamp(240px,24vw,340px);aspect-ratio:1;display:grid;place-items:center}
@@ -566,12 +578,11 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
             <a href="#" class="btn btn-tw btn-xl" id="btn-login-hero">▶ Entrar com Twitch</a>
             <a href="#" onclick="go('casinos');return false" class="btn btn-ghost btn-xl">Ver ofertas</a>
           </div>
-          <div class="hb-stats">
-            <div class="hb-stat"><div class="n">15.3K</div><div class="l">Seguidores</div></div>
-            <div class="hb-divider"></div>
-            <div class="hb-stat"><div class="n">1000+</div><div class="l">Horas transmitidas</div></div>
-            <div class="hb-divider"></div>
-            <div class="hb-stat"><div class="n">3</div><div class="l">Jogos da casa</div></div>
+          <div class="hb-social">
+            <a class="hb-soc tw" href="https://www.twitch.tv/jigadores" target="_blank" rel="noopener"><span class="hs-ic">TW</span>Twitch</a>
+            <a class="hb-soc dc" href="https://discord.gg/Mw8ZzTfB" target="_blank" rel="noopener"><span class="hs-ic">DC</span>Discord</a>
+            <a class="hb-soc tg" href="https://t.me/+J4RYmtnV9gAyY2Zk" target="_blank" rel="noopener"><span class="hs-ic">TG</span>Telegram</a>
+            <a class="hb-soc ig" href="https://www.instagram.com/jigadores" target="_blank" rel="noopener"><span class="hs-ic">IG</span>Instagram</a>
           </div>
         </div>
         <div class="hb-right" aria-hidden="true">
@@ -590,27 +601,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
       <h2 class="s-title">Ofertas em destaque <span class="cnt" id="feat-count">1</span></h2>
       <p class="s-sub">As melhores promoções negociadas para a comunidade. Só 18+.</p>
       <div class="row-scroll" id="featured-row"></div>
-    </div>
-
-    <!-- vê em direto -->
-    <div class="sec" id="watch">
-      <div class="eyebrow">Em direto</div>
-      <h2 class="s-title">Vê onde quiseres</h2>
-      <p class="s-sub" id="watch-sub">Acompanha as streams ao vivo e nunca percas uma sessão.</p>
-      <div class="live-grid">
-        <div class="player" id="twitch-player">
-          <div class="player-fallback">
-            <div class="play"></div>
-            <div>A carregar a stream…</div>
-          </div>
-        </div>
-        <div class="chan-list">
-          <a class="chan" href="https://www.twitch.tv/jigadores" target="_blank" rel="noopener"><div class="ic tw">TW</div><div><div class="nm">Twitch</div><div class="sub">Streams principais · ao vivo</div></div></a>
-          <a class="chan" href="https://discord.gg/Mw8ZzTfB" target="_blank" rel="noopener"><div class="ic dc">DC</div><div><div class="nm">Discord</div><div class="sub">Comunidade & chat</div></div></a>
-          <a class="chan" href="https://t.me/+J4RYmtnV9gAyY2Zk" target="_blank" rel="noopener"><div class="ic tg">TG</div><div><div class="nm">Telegram</div><div class="sub">Avisos & códigos exclusivos</div></div></a>
-          <a class="chan" href="https://www.instagram.com/jigadores" target="_blank" rel="noopener"><div class="ic ig">IG</div><div><div class="nm">Instagram</div><div class="sub">Clips & bastidores</div></div></a>
-        </div>
-      </div>
     </div>
 
     <!-- streams guardadas (VODs da Twitch) -->
