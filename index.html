@@ -297,6 +297,15 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .lb-row .lr-rank{font-family:"Sora";font-weight:800;font-size:16px;color:var(--muted);width:32px;text-align:center}
 .lb-row .lr-name{font-weight:600;flex:1}
 .lb-row .lr-score{font-family:"Chakra Petch";font-weight:700;color:var(--gold)}
+.lb-you{max-width:780px;margin:16px auto 0;display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:linear-gradient(120deg,rgba(255,196,66,.13),rgba(177,75,255,.13));border:1px solid rgba(255,196,66,.45);box-shadow:0 10px 28px rgba(177,75,255,.20);position:sticky;bottom:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.lb-you .ly-av,.lb-you .ly-img{width:42px;height:42px;border-radius:50%;flex-shrink:0;object-fit:cover}
+.lb-you .ly-av{display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:800;font-size:15px;color:#0c0918}
+.lb-you .ly-meta{flex:1;min-width:0}
+.lb-you .ly-k{font-family:"Chakra Petch";font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.lb-you .ly-name{font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-you .ly-rank{font-family:"Sora";font-weight:800;font-size:18px;color:var(--txt)}
+.lb-you .ly-score{font-family:"Chakra Petch";font-weight:700;color:var(--gold);white-space:nowrap}
+@media (max-width:980px){ .lb-you{bottom:76px} }
 
 /* ============ LIVE / WATCH ============ */
 .live-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:22px}
@@ -542,7 +551,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
   <div class="side-foot">
     <div class="side-soc">
       <a href="https://www.twitch.tv/jigadores" target="_blank" rel="noopener" title="Twitch">TW</a>
-      <a href="https://discord.gg/Mw8ZzTfB" target="_blank" rel="noopener" title="Discord">DC</a>
+      <a href="https://discord.gg/VMeaUqpKU" target="_blank" rel="noopener" title="Discord">DC</a>
       <a href="https://t.me/+J4RYmtnV9gAyY2Zk" target="_blank" rel="noopener" title="Telegram">TG</a>
       <a href="https://www.instagram.com/jigadores" target="_blank" rel="noopener" title="Instagram">IG</a>
     </div>
@@ -601,7 +610,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
           </div>
           <div class="hb-social">
             <a class="hb-soc tw" href="https://www.twitch.tv/jigadores" target="_blank" rel="noopener"><span class="hs-ic">TW</span>Twitch</a>
-            <a class="hb-soc dc" href="https://discord.gg/Mw8ZzTfB" target="_blank" rel="noopener"><span class="hs-ic">DC</span>Discord</a>
+            <a class="hb-soc dc" href="https://discord.gg/VMeaUqpKU" target="_blank" rel="noopener"><span class="hs-ic">DC</span>Discord</a>
             <a class="hb-soc tg" href="https://t.me/+J4RYmtnV9gAyY2Zk" target="_blank" rel="noopener"><span class="hs-ic">TG</span>Telegram</a>
             <a class="hb-soc ig" href="https://www.instagram.com/jigadores" target="_blank" rel="noopener"><span class="hs-ic">IG</span>Instagram</a>
           </div>
@@ -1158,6 +1167,35 @@ async function loadLeaderboard(){
       <div class="lr-score">${Number(p.score||0).toLocaleString("pt-PT")} pts</div></div>`).join("") + `</div>`;
   }
   box.innerHTML = podHtml + listHtml;
+  renderYouRow(box);
+}
+
+// Linha 'O teu lugar': rank + pontos de quem está logado e não está no pódio (top 3).
+async function renderYouRow(box){
+  const login = window._twitchLogin;
+  if(!login) return;
+  let me = null;
+  try{
+    const r = await fetch(`${POINTS_API}/api/points/${encodeURIComponent(login.toLowerCase())}`);
+    if(r.ok) me = await r.json();
+  }catch(e){ return; }
+  if(!me) return;
+  const rank = (me.rank!=null) ? Number(me.rank) : null;
+  if(rank!=null && rank<=3) return;                 // já aparece no pódio
+  const name = (($("u-name") && $("u-name").textContent) || login).trim();
+  const avRaw = ($("u-avatar") && $("u-avatar").getAttribute("src")) || "";
+  const av = /^https?:/.test(avRaw) ? avRaw : "";
+  const initials = (n)=>{ n=(n||"?").trim(); const p=n.split(/\s+/); return ((p[0]&&p[0][0]||"")+(p[1]&&p[1][0]||p[0]&&p[0][1]||"")).toUpperCase(); };
+  const avGrad = (n)=>{ let h=0; for(const c of (n||"x")) h=(h*31+c.charCodeAt(0))%360; return `linear-gradient(135deg,hsl(${h},70%,55%),hsl(${(h+50)%360},70%,40%))`; };
+  const avHtml = av ? `<img src="${av}" alt="" class="ly-img">` : `<div class="ly-av" style="background:${avGrad(name)}">${initials(name)}</div>`;
+  const pts = Number(me.points||0).toLocaleString("pt-PT");
+  const el = document.createElement("div");
+  el.className = "lb-you";
+  el.innerHTML = avHtml
+    + `<div class="ly-meta"><div class="ly-k">O teu lugar</div><div class="ly-name">${name}</div></div>`
+    + `<div class="ly-rank">${rank!=null?("#"+rank):"—"}</div>`
+    + `<div class="ly-score">${rank!=null?(pts+" pts"):"Joga para entrares"}</div>`;
+  box.appendChild(el);
 }
 
 // vai buscar os pontos reais do StreamElements pelo nome de Twitch
@@ -1200,6 +1238,7 @@ async function refreshUser(){
     $("user-box").style.display = "flex";
     loginBtns.forEach(b=>{ if(b) b.style.display="none"; });
     window._token = session.access_token;
+    window._twitchLogin = twitchLogin;
     const lk=$("lobby-locked"); if(lk) lk.style.display="none";
     $("u-points").textContent = "…";
     const pts = await fetchPoints(twitchLogin);
@@ -1214,6 +1253,7 @@ async function refreshUser(){
     const crb=$("cr-balance"); if(crb) crb.textContent=fmt;
   }else{
     window._token = null;
+    window._twitchLogin = null;
     const lk=$("lobby-locked"); if(lk) lk.style.display="block";
     $("user-box").style.display = "none";
     loginBtns.forEach(b=>{ if(b) b.style.display=""; });
