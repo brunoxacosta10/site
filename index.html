@@ -52,7 +52,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;z-index:60;
   background:linear-gradient(180deg,#0c0820,#090614);
   display:flex;flex-direction:column;padding:0 16px 22px;overflow-y:auto}
-.side-logo{height:72px;display:flex;align-items:center;margin:0 -16px 18px;padding:0 16px 0 30px;border-bottom:1px solid var(--line);cursor:pointer}
+.side-logo{height:72px;display:flex;align-items:center;justify-content:center;margin:0 -16px 18px;padding:0 16px;border-bottom:1px solid var(--line);cursor:pointer}
 .side-logo img{width:100%;max-width:150px;height:auto;display:block;flex-shrink:0;filter:drop-shadow(0 2px 10px rgba(190,175,255,.18))}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
@@ -358,20 +358,26 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 
 /* ===== BLACKJACK ===== */
 .bj-table{background:radial-gradient(ellipse at 50% 0%,#1a4d3a,#0d3326 70%,#08231a);
-  border:1px solid #2a5f48;border-radius:20px;padding:30px 24px;margin-top:4px;min-height:300px}
+  border:1px solid #2a5f48;border-radius:20px;padding:30px 24px;margin-top:4px;min-height:300px;position:relative}
 .bj-area{margin-bottom:26px}
 .bj-label{font-family:"Chakra Petch";font-size:13px;color:#cfe8dd;letter-spacing:.08em;margin-bottom:10px;text-transform:uppercase}
 .bj-label span{color:var(--gold);font-weight:700;margin-left:6px}
-.bj-cards{display:flex;gap:8px;flex-wrap:wrap;min-height:88px}
+.bj-cards{display:flex;gap:8px;flex-wrap:wrap;min-height:88px;padding-right:78px}
 .bj-hand{display:flex;gap:8px;flex-wrap:wrap;padding:8px;border-radius:12px;margin-bottom:8px}
 .bj-hand.active{outline:2px solid var(--gold);outline-offset:2px}
 .bj-hand-info{font-size:12px;color:#cfe8dd;margin-bottom:4px}
 .card{width:60px;height:84px;border-radius:8px;background:#fff;display:flex;flex-direction:column;
   align-items:center;justify-content:center;font-family:"Sora";font-weight:800;font-size:22px;color:#1a1a1a;
-  box-shadow:0 4px 12px rgba(0,0,0,.4);position:relative;animation:dealCard .3s ease}
+  box-shadow:0 4px 12px rgba(0,0,0,.4);position:relative}
 .card.red{color:#c62836}
 .card.back{background:repeating-linear-gradient(45deg,#5d2bff,#5d2bff 6px,#b14bff 6px,#b14bff 12px);color:transparent}
 .card .suit{font-size:16px;margin-top:-2px}
+.bj-deck{position:absolute;top:24px;right:24px;width:60px;height:84px;z-index:1}
+.bj-deck span{position:absolute;left:0;top:0;width:60px;height:84px;border-radius:8px;background:repeating-linear-gradient(45deg,#5d2bff,#5d2bff 6px,#b14bff 6px,#b14bff 12px);box-shadow:0 4px 12px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12)}
+.bj-deck span:nth-child(2){transform:translate(1.5px,-1.5px)}
+.bj-deck span:nth-child(3){transform:translate(3px,-3px)}
+.bj-deck span:nth-child(4){transform:translate(4.5px,-4.5px)}
+.bj-deck span:nth-child(5){transform:translate(6px,-6px)}
 @keyframes dealCard{from{transform:translateY(-20px) scale(.8);opacity:0}to{transform:none;opacity:1}}
 .bj-msg{text-align:center;font-family:"Sora";font-weight:800;font-size:22px;min-height:30px;margin-top:6px}
 .bj-act{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--txt);flex:1;justify-content:center;min-width:90px}
@@ -723,6 +729,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
     <div class="back-link" onclick="go('lobby')">← Voltar aos jogos</div>
     <h2 class="s-title" style="margin-bottom:18px">🃏 Blackjack</h2>
     <div class="bj-table">
+      <div class="bj-deck" id="bj-deck" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
       <div class="bj-area"><div class="bj-label">Dealer <span id="bj-dealer-val"></span></div><div id="bj-dealer-cards" class="bj-cards"></div></div>
       <div class="bj-area"><div class="bj-label">Tu <span id="bj-player-val"></span></div><div id="bj-player-hands"></div></div>
       <div id="bj-msg" class="bj-msg"></div>
@@ -1159,12 +1166,47 @@ $("cf-tails").addEventListener("click", ()=>playCoinflip("tails"));
 
 // --- BLACKJACK ---
 let bjGame = null;
+let bjPrev = { id:null, dealer:0, hands:[] };
 function cardHtml(c){
   if(c.r==="?") return '<div class="card back"></div>';
   const red = (c.s==="♥"||c.s==="♦");
   return `<div class="card ${red?'red':''}">${c.r}<span class="suit">${c.s}</span></div>`;
 }
+function bjDealCards(d, prevDealer, prevHands, splitChanged){
+  const deck = $("bj-deck");
+  if(!deck) return;
+  const newEls = [];
+  const handRows = $("bj-player-hands").querySelectorAll(".bj-hand");
+  d.hands.forEach((h,i)=>{
+    const row = handRows[i]; if(!row) return;
+    const cards = row.querySelectorAll(".card");
+    const start = splitChanged ? 0 : (prevHands[i]||0);
+    for(let j=start;j<cards.length;j++){ if(cards[j]) newEls.push(cards[j]); }
+  });
+  const dCards = $("bj-dealer-cards").querySelectorAll(".card");
+  for(let i=prevDealer;i<dCards.length;i++){ if(dCards[i]) newEls.push(dCards[i]); }
+  if(!newEls.length) return;
+  const dr = deck.getBoundingClientRect();
+  newEls.forEach(el=>{
+    const cr = el.getBoundingClientRect();
+    el.style.animation="none"; el.style.transition="none";
+    el.style.transform=`translate(${dr.left-cr.left}px,${dr.top-cr.top}px) rotate(-16deg) scale(.9)`;
+    el.style.opacity="0"; el.style.zIndex="6";
+  });
+  void deck.offsetWidth;
+  newEls.forEach((el,idx)=>{
+    const delay = idx*110;
+    el.style.transition=`transform .5s cubic-bezier(.18,.7,.2,1) ${delay}ms, opacity .22s linear ${delay}ms`;
+    el.style.transform="none"; el.style.opacity="1";
+  });
+  const total = (newEls.length-1)*110 + 540;
+  setTimeout(()=>{ newEls.forEach(el=>{ el.style.zIndex=""; }); }, total);
+}
 function renderBlackjack(d){
+  const sameGame = (bjPrev.id === d.game_id);
+  const prevDealer = sameGame ? bjPrev.dealer : 0;
+  const prevHands = sameGame ? bjPrev.hands : [];
+  const splitChanged = prevHands.length !== d.hands.length;
   bjGame = d;
   $("bj-dealer-cards").innerHTML = d.dealer.cards.map(cardHtml).join("");
   $("bj-dealer-val").textContent = d.dealer.value!=null ? d.dealer.value : "";
@@ -1197,6 +1239,8 @@ function renderBlackjack(d){
     $("bj-again").style.display="block";
     showBjResult(d);
   }
+  bjDealCards(d, prevDealer, prevHands, splitChanged);
+  bjPrev = { id:d.game_id, dealer:d.dealer.cards.length, hands:d.hands.map(h=>h.cards.length) };
 }
 function resultWord(r){
   return {win:"Ganhou",lose:"Perdeu",push:"Empate",bust:"Rebentou",blackjack:"Blackjack!"}[r]||r;
@@ -1248,6 +1292,7 @@ $("bj-newgame").addEventListener("click", ()=>{
   $("bj-player-hands").innerHTML="";
   $("bj-dealer-val").textContent="";
   $("bj-player-val").textContent="";
+  bjPrev={id:null,dealer:0,hands:[]};
 });
 
 // --- ROLETA REALISTA ---
