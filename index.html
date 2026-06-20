@@ -308,6 +308,25 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .game-card h3{font-size:21px;margin-bottom:8px}
 .game-card p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:18px;font-weight:300}
 .game-card .gc-go{font-family:"Chakra Petch";font-weight:700;color:var(--gold);font-size:14px}
+/* ===== VODs / streams guardadas ===== */
+.vods-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.vods-all{font-family:"Chakra Petch";font-weight:700;font-size:13px;color:var(--neon);text-decoration:none;white-space:nowrap}
+.vods-all:hover{color:var(--gold)}
+.vods-row{display:flex;gap:16px;overflow-x:auto;padding:4px 2px 14px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.vods-row::-webkit-scrollbar{height:8px}
+.vods-row::-webkit-scrollbar-track{background:transparent}
+.vods-row::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+.vod-card{flex:0 0 290px;scroll-snap-align:start;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,var(--panel),#0c0918);border:1px solid var(--line);text-decoration:none;color:var(--txt);transition:.2s;display:block}
+.vod-card:hover{transform:translateY(-4px);border-color:rgba(177,75,255,.45);box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.vod-thumb{position:relative;aspect-ratio:16/9;background-size:cover;background-position:center;background-color:#0a0716}
+.vod-thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.5))}
+.vod-play{position:absolute;inset:0;margin:auto;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;z-index:2;transition:.2s;border:1px solid rgba(255,255,255,.25)}
+.vod-card:hover .vod-play{background:var(--neon);transform:scale(1.1);border-color:transparent}
+.vod-dur{position:absolute;right:8px;bottom:8px;z-index:2;background:rgba(0,0,0,.82);color:#fff;font-family:"Chakra Petch";font-weight:700;font-size:12px;padding:3px 8px;border-radius:6px}
+.vod-meta{padding:14px}
+.vod-title{font-weight:700;font-size:14px;line-height:1.35;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38px}
+.vod-info{color:var(--muted);font-size:12px}
+.vods-empty{color:var(--muted);font-size:14px;padding:26px 2px}
 .locked-note{padding:24px;border:1px solid var(--line);border-radius:14px;background:var(--panel);text-align:center;color:var(--muted);margin-bottom:22px}
 
 /* ===== MOEDA 3D (coinflip) ===== */
@@ -594,9 +613,21 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
       </div>
     </div>
 
+    <!-- streams guardadas (VODs da Twitch) -->
+    <div class="sec" id="vods-sec">
+      <div class="vods-head">
+        <div>
+          <h2 class="s-title">Streams guardadas</h2>
+          <p class="s-sub">As últimas transmissões do canal na Twitch.</p>
+        </div>
+        <a class="vods-all" href="https://www.twitch.tv/jigadores/videos" target="_blank" rel="noopener">Ver na Twitch →</a>
+      </div>
+      <div class="vods-row" id="vods-row"><div class="vods-empty">A carregar streams…</div></div>
+    </div>
+
     <!-- jogos da casa -->
     <div class="sec">
-      <h2 class="s-title">Jogos da casa <span class="cnt">3</span></h2>
+      <h2 class="s-title">Jogos da casa <span class="cnt">6</span></h2>
       <p class="s-sub">Joga com os teus pontos do canal, só por diversão.</p>
       <div class="game-cards">
         <div class="game-card" onclick="openGame('coinflip')"><div class="gc-ic">🪙</div><h3>Coinflip</h3><p>Cara ou coroa. Acertas, dobras. Falhas, perdes.</p><span class="gc-go">Jogar →</span></div>
@@ -1964,8 +1995,41 @@ async function refreshLive(){
   if(!st || st.configured===false){ setLiveUI(true, null); return; }
   setLiveUI(!!st.live, st);
 }
+// ====== VODs (streams guardadas da Twitch) ======
+function vodEsc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function vodDate(iso){
+  if(!iso) return "";
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("pt-PT",{day:"2-digit",month:"short",year:"numeric"});
+}
+async function loadVods(){
+  const row = $("vods-row"); if(!row) return;
+  try{
+    const r = await fetch(POINTS_API+"/api/vods",{cache:"no-store"});
+    const d = await r.json();
+    const sec = $("vods-sec");
+    if(!d.configured){ if(sec) sec.style.display="none"; return; }
+    const vods = d.vods||[];
+    if(!vods.length){ row.innerHTML='<div class="vods-empty">Ainda não há streams guardadas no canal.</div>'; return; }
+    row.innerHTML = vods.map(v=>{
+      const date = vodDate(v.created_at);
+      const views = (v.views||0).toLocaleString("pt-PT");
+      const title = vodEsc(v.title||"Stream");
+      const thumb = v.thumbnail ? `background-image:url('${v.thumbnail}')` : "";
+      const dur = v.duration ? `<div class="vod-dur">${v.duration}</div>` : "";
+      const info = [date, views+" views"].filter(Boolean).join(" · ");
+      return `<a class="vod-card" href="${v.url}" target="_blank" rel="noopener">`
+        + `<div class="vod-thumb" style="${thumb}"><div class="vod-play">▶</div>${dur}</div>`
+        + `<div class="vod-meta"><div class="vod-title">${title}</div><div class="vod-info">${info}</div></div></a>`;
+    }).join("");
+  }catch(e){
+    row.innerHTML='<div class="vods-empty">Não foi possível carregar as streams agora.</div>';
+  }
+}
 refreshLive();
 setInterval(refreshLive, 60000);
+loadVods();
 if(sb){ sb.auth.onAuthStateChange(()=>refreshUser()); }
 refreshUser();
 </script>
