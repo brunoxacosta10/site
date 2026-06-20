@@ -324,6 +324,32 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .field-label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
 .field-input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0f0a1c;color:var(--txt);font-size:16px;margin-bottom:16px;font-family:"Outfit"}
 .bal-line{text-align:center;color:var(--muted);font-size:13px;margin-top:10px}
+/* ===== jogos extra: mines / plinko / crash ===== */
+.mn-controls{display:flex;gap:12px;margin-bottom:16px}
+.mn-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:4px 0 16px}
+.mn-tile{aspect-ratio:1;border:1px solid var(--line);border-radius:12px;background:#0f0a1c;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:.15s;user-select:none}
+.mn-tile:hover:not(.done){border-color:rgba(255,196,66,.5);transform:translateY(-2px)}
+.mn-tile.gem{background:rgba(70,224,138,.14);border-color:rgba(70,224,138,.5)}
+.mn-tile.mine{background:rgba(255,107,126,.16);border-color:rgba(255,107,126,.55)}
+.mn-tile.dim{opacity:.35}
+.mn-tile.done{cursor:default}
+.mn-actionbar{display:flex;gap:12px}
+.mn-result{text-align:center;font-family:"Chakra Petch";font-size:16px;min-height:30px;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+/* plinko */
+.pk-board{position:relative;width:100%;height:300px;margin-bottom:6px}
+.pk-peg{position:absolute;width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.32);transform:translate(-50%,-50%)}
+.pk-ball{position:absolute;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,var(--gold));box-shadow:0 0 12px var(--gold);transform:translate(-50%,-50%);z-index:3}
+.pk-slots{display:flex;gap:3px;margin-bottom:16px}
+.pk-slot{flex:1;text-align:center;font-family:"Chakra Petch";font-weight:700;font-size:11px;padding:7px 2px;border-radius:8px;background:var(--panel);border:1px solid var(--line);transition:.2s}
+.pk-slot.hit{background:linear-gradient(180deg,var(--gold),var(--gold-2));color:#1a1206;transform:scale(1.12)}
+/* crash */
+.cr-stage{position:relative;width:100%;height:220px;border:1px solid var(--line);border-radius:14px;background:radial-gradient(120% 120% at 50% 100%,#1a1140,#0c0918);overflow:hidden;margin-bottom:16px}
+.cr-canvas{position:absolute;inset:0;width:100%;height:100%}
+.cr-mult{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Sora";font-weight:800;font-size:46px;color:#fff;text-shadow:0 2px 20px rgba(177,75,255,.6);z-index:2}
+.cr-mult.win{color:var(--ok)}
+.cr-mult.bust{color:var(--down)}
+.cr-cashbtn{background:linear-gradient(180deg,#46e08a,#2bbf6e)!important;color:#06210f!important;border-color:transparent!important}
+
 .bal-line b,.bal-line span{color:var(--gold);font-weight:700}
 
 /* ===== BLACKJACK ===== */
@@ -566,6 +592,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
         <div class="game-card" onclick="openGame('coinflip')"><div class="gc-ic">🪙</div><h3>Coinflip</h3><p>Cara ou coroa. Acertas, dobras. Falhas, perdes.</p><span class="gc-go">Jogar →</span></div>
         <div class="game-card" onclick="openGame('roulette')"><div class="gc-ic">🎡</div><h3>Roleta</h3><p>Roleta europeia. Cores, números, dúzias e mais.</p><span class="gc-go">Jogar →</span></div>
         <div class="game-card" onclick="openGame('blackjack')"><div class="gc-ic">🃏</div><h3>Blackjack</h3><p>Chega a 21 sem rebentar. Contra a casa.</p><span class="gc-go">Jogar →</span></div>
+      <div class="game-card" onclick="openGame('mines')"><div class="gc-ic">💣</div><h3>Mines</h3><p>Vira casas e foge às minas. Quanto mais arriscas, mais ganhas.</p><span class="gc-go">Jogar →</span></div>
+      <div class="game-card" onclick="openGame('plinko')"><div class="gc-ic">🟣</div><h3>Plinko</h3><p>Larga a bola e vê onde cai. As pontas pagam mais.</p><span class="gc-go">Jogar →</span></div>
+      <div class="game-card" onclick="openGame('crash')"><div class="gc-ic">🚀</div><h3>Crash</h3><p>O multiplicador sobe. Levanta antes de rebentar.</p><span class="gc-go">Jogar →</span></div>
       </div>
     </div>
 
@@ -603,6 +632,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
       <div class="game-card" onclick="openGame('coinflip')"><div class="gc-ic">🪙</div><h3>Coinflip</h3><p>Cara ou coroa. Acertas, dobras. Falhas, perdes.</p><span class="gc-go">Jogar →</span></div>
       <div class="game-card" onclick="openGame('roulette')"><div class="gc-ic">🎡</div><h3>Roleta</h3><p>Roleta europeia. Cores, números, dúzias e mais.</p><span class="gc-go">Jogar →</span></div>
       <div class="game-card" onclick="openGame('blackjack')"><div class="gc-ic">🃏</div><h3>Blackjack</h3><p>Chega a 21 sem rebentar. Contra a casa.</p><span class="gc-go">Jogar →</span></div>
+      <div class="game-card" onclick="openGame('mines')"><div class="gc-ic">💣</div><h3>Mines</h3><p>Vira casas e foge às minas. Quanto mais arriscas, mais ganhas.</p><span class="gc-go">Jogar →</span></div>
+      <div class="game-card" onclick="openGame('plinko')"><div class="gc-ic">🟣</div><h3>Plinko</h3><p>Larga a bola e vê onde cai. As pontas pagam mais.</p><span class="gc-go">Jogar →</span></div>
+      <div class="game-card" onclick="openGame('crash')"><div class="gc-ic">🚀</div><h3>Crash</h3><p>O multiplicador sobe. Levanta antes de rebentar.</p><span class="gc-go">Jogar →</span></div>
     </div>
   </div><!-- /screen-lobby -->
 
@@ -708,6 +740,58 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
       <button class="btn" id="bj-newgame" style="background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#1a1206">Jogar outra vez</button>
     </div>
   </div><!-- /screen-blackjack -->
+
+  <!-- ===== ECRÃ: MINES ===== -->
+  <div id="screen-mines" style="display:none">
+    <div class="back-link" onclick="mnLeave()">← Voltar aos jogos</div>
+    <h2 class="s-title" style="margin-bottom:18px">💣 Mines</h2>
+    <div class="game-panel" style="max-width:520px">
+      <p style="color:var(--muted);font-size:14px;margin-bottom:18px">Vira casas para subir o multiplicador. Bate numa mina e perdes a aposta. Levanta quando quiseres.</p>
+      <div class="mn-controls">
+        <div style="flex:1"><label class="field-label">Aposta (pontos)</label><input id="mn-bet" type="number" min="1" value="100" class="field-input" style="margin-bottom:0"></div>
+        <div style="flex:1"><label class="field-label">Minas</label><select id="mn-mines" class="field-input" style="margin-bottom:0"><option>1</option><option>2</option><option selected>3</option><option>5</option><option>8</option><option>12</option><option>18</option><option>24</option></select></div>
+      </div>
+      <div id="mn-grid" class="mn-grid"></div>
+      <div class="mn-actionbar">
+        <button id="mn-start" class="btn btn-tw" style="flex:1">Apostar</button>
+        <button id="mn-cash" class="btn" style="flex:1;display:none;background:rgba(70,224,138,.14);color:var(--ok);border:1px solid rgba(70,224,138,.4)">Levantar</button>
+      </div>
+      <div id="mn-result" class="mn-result"></div>
+      <div class="bal-line">Saldo: <span id="mn-balance">—</span> pontos</div>
+    </div>
+  </div><!-- /screen-mines -->
+
+  <!-- ===== ECRÃ: PLINKO ===== -->
+  <div id="screen-plinko" style="display:none">
+    <div class="back-link" onclick="go('lobby')">← Voltar aos jogos</div>
+    <h2 class="s-title" style="margin-bottom:18px">🟣 Plinko</h2>
+    <div class="game-panel" style="max-width:520px">
+      <p style="color:var(--muted);font-size:14px;margin-bottom:18px">Larga a bola pela tábua. Onde cair, é o teu multiplicador. As pontas pagam mais.</p>
+      <div id="pk-board" class="pk-board"></div>
+      <div id="pk-slots" class="pk-slots"></div>
+      <label class="field-label">Aposta (pontos)</label>
+      <input id="pk-bet" type="number" min="1" value="100" class="field-input">
+      <button id="pk-drop" class="btn btn-tw" style="width:100%">Largar bola</button>
+      <div id="pk-result" class="mn-result"></div>
+      <div class="bal-line">Saldo: <span id="pk-balance">—</span> pontos</div>
+    </div>
+  </div><!-- /screen-plinko -->
+
+  <!-- ===== ECRÃ: CRASH ===== -->
+  <div id="screen-crash" style="display:none">
+    <div class="back-link" onclick="crLeave()">← Voltar aos jogos</div>
+    <h2 class="s-title" style="margin-bottom:18px">🚀 Crash</h2>
+    <div class="game-panel" style="max-width:520px">
+      <p style="color:var(--muted);font-size:14px;margin-bottom:18px">O multiplicador sobe a partir de 1.00×. Levanta antes de rebentar — se esperas demais, perdes tudo.</p>
+      <div class="cr-stage"><canvas id="cr-canvas" class="cr-canvas"></canvas><div id="cr-mult" class="cr-mult">1.00×</div></div>
+      <label class="field-label">Aposta (pontos)</label>
+      <input id="cr-bet" type="number" min="1" value="100" class="field-input">
+      <button id="cr-action" class="btn btn-tw" style="width:100%">Lançar</button>
+      <div id="cr-result" class="mn-result"></div>
+      <div class="bal-line">Saldo: <span id="cr-balance">—</span> pontos</div>
+    </div>
+  </div><!-- /screen-crash -->
+
 
   </div><!-- /content -->
 
@@ -851,9 +935,9 @@ function renderOffers(){
 }
 
 // ====== NAVEGAÇÃO (screens + sidebar) ======
-const SCREENS = ["home","casinos","leaderboard","lobby","coinflip","roulette","blackjack"];
+const SCREENS = ["home","casinos","leaderboard","lobby","coinflip","roulette","blackjack","mines","plinko","crash"];
 // que item da sidebar fica activo para cada screen
-const NAV_FOR_SCREEN = {home:"home",casinos:"casinos",leaderboard:"leaderboard",lobby:"lobby",coinflip:"lobby",roulette:"lobby",blackjack:"lobby"};
+const NAV_FOR_SCREEN = {home:"home",casinos:"casinos",leaderboard:"leaderboard",lobby:"lobby",coinflip:"lobby",roulette:"lobby",blackjack:"lobby",mines:"lobby",plinko:"lobby",crash:"lobby"};
 
 function showScreen(name){
   SCREENS.forEach(s=>{ const el=$("screen-"+s); if(el) el.style.display=(s===name)?"block":"none"; });
@@ -884,6 +968,9 @@ function openGame(game){
   }
   if(game==="roulette" && !rouletteBuilt){ buildWheel(); buildTable(); rouletteBuilt=true; }
   showScreen(game);
+  if(game==="mines") mnBuildGrid();
+  if(game==="plinko") pkBuild();
+  if(game==="crash") crDrawInit();
   document.querySelectorAll(".nav-item, .mob-item").forEach(it=>it.classList.toggle("active", it.dataset.nav==="lobby"));
 }
 window.openGame = openGame;
@@ -994,6 +1081,9 @@ async function refreshUser(){
     $("cf-balance").textContent = fmt;
     const rb=$("rl-balance"); if(rb) rb.textContent=fmt;
     const bb=$("bj-balance"); if(bb) bb.textContent=fmt;
+    const mnb=$("mn-balance"); if(mnb) mnb.textContent=fmt;
+    const pkb=$("pk-balance"); if(pkb) pkb.textContent=fmt;
+    const crb=$("cr-balance"); if(crb) crb.textContent=fmt;
   }else{
     window._token = null;
     const lk=$("lobby-locked"); if(lk) lk.style.display="block";
@@ -1344,6 +1434,9 @@ function buildSearchIndex(){
     {group:"Jogos", emoji:"🪙", name:"Coinflip",  action:()=>openGame("coinflip")},
     {group:"Jogos", emoji:"🎡", name:"Roleta",    action:()=>openGame("roulette")},
     {group:"Jogos", emoji:"🃏", name:"Blackjack", action:()=>openGame("blackjack")},
+    {group:"Jogos", emoji:"💣", name:"Mines",  action:()=>openGame("mines")},
+    {group:"Jogos", emoji:"🟣", name:"Plinko", action:()=>openGame("plinko")},
+    {group:"Jogos", emoji:"🚀", name:"Crash",  action:()=>openGame("crash")},
   ];
   // casinos vêm do OFFERS (quando adicionas marcas, aparecem aqui sozinhas)
   OFFERS.forEach(o=>{
@@ -1418,6 +1511,355 @@ function initSearch(){
 // ====== ARRANQUE ======
 renderOffers();
 initSearch();
+// ====== MINES ======
+let mnState = null;
+function mnBuildGrid(){
+  const g = $("mn-grid"); if(!g) return;
+  g.innerHTML = "";
+  for(let i=0;i<25;i++){
+    const t = document.createElement("div");
+    t.className = "mn-tile"; t.dataset.i = i;
+    t.addEventListener("click", ()=>mnReveal(i));
+    g.appendChild(t);
+  }
+}
+function mnLeave(){ go("lobby"); }
+function mnSetPlaying(on){
+  $("mn-start").style.display = on ? "none" : "";
+  $("mn-cash").style.display = on ? "" : "none";
+  $("mn-bet").disabled = on;
+  $("mn-mines").disabled = on;
+}
+async function mnStart(){
+  if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
+  const bet = parseInt($("mn-bet").value)||0;
+  const mines = parseInt($("mn-mines").value)||3;
+  if(bet<1){ $("mn-result").innerHTML='<span style="color:var(--down)">Aposta pelo menos 1 ponto.</span>'; return; }
+  $("mn-start").disabled = true;
+  $("mn-result").innerHTML = '<span style="color:var(--muted)">a preparar…</span>';
+  try{
+    const r = await fetch(`${POINTS_API}/api/play/mines/start`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+window._token},
+      body: JSON.stringify({bet, mines})
+    });
+    const d = await r.json();
+    $("mn-start").disabled = false;
+    if(!r.ok){ $("mn-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return; }
+    mnState = {id:d.id, bet:d.bet, mult:1};
+    mnBuildGrid();
+    mnSetPlaying(true);
+    $("mn-cash").textContent = "Levantar";
+    mnUpdateBalance(d.balance);
+    $("mn-result").innerHTML = `<span style="color:var(--muted)">Vira uma casa · próximo ×${d.next_multiplier.toFixed(2)}</span>`;
+  }catch(e){ $("mn-start").disabled=false; $("mn-result").innerHTML='<span style="color:var(--down)">falha de ligação</span>'; }
+}
+async function mnReveal(i){
+  if(!mnState) return;
+  const tile = document.querySelector(`#mn-grid .mn-tile[data-i="${i}"]`);
+  if(!tile || tile.classList.contains("done")) return;
+  tile.classList.add("done");
+  try{
+    const r = await fetch(`${POINTS_API}/api/play/mines/reveal`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+window._token},
+      body: JSON.stringify({id:mnState.id, tile:i})
+    });
+    const d = await r.json();
+    if(!r.ok){ tile.classList.remove("done"); $("mn-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return; }
+    if(d.bust){
+      tile.classList.add("mine"); tile.textContent="💣";
+      mnRevealAllMines(d.mine_set, i);
+      $("mn-result").innerHTML = `<span style="color:var(--down)">💥 Bateste numa mina! Perdeste ${mnState.bet}</span>`;
+      mnUpdateBalance(d.balance);
+      mnEnd();
+      return;
+    }
+    tile.classList.add("gem"); tile.textContent="💎";
+    mnState.mult = d.multiplier;
+    if(d.cleared){
+      $("mn-result").innerHTML = `<span style="color:var(--ok)">Limpaste tudo! ×${d.multiplier.toFixed(2)} · +${d.delta} 🎉</span>`;
+      mnUpdateBalance(d.balance);
+      mnEnd();
+      return;
+    }
+    $("mn-cash").textContent = `Levantar ${d.cashout_value} (×${d.multiplier.toFixed(2)})`;
+    $("mn-result").innerHTML = `<span style="color:var(--ok)">×${d.multiplier.toFixed(2)}</span><span style="color:var(--muted)">· próximo ×${d.next_multiplier.toFixed(2)}</span>`;
+  }catch(e){ tile.classList.remove("done"); $("mn-result").innerHTML='<span style="color:var(--down)">falha de ligação</span>'; }
+}
+function mnRevealAllMines(set, hit){
+  document.querySelectorAll("#mn-grid .mn-tile").forEach(t=>{
+    const i = parseInt(t.dataset.i);
+    if(set && set.includes(i)){ if(i!==hit){ t.classList.add("mine","done"); t.textContent="💣"; } }
+    else if(!t.classList.contains("gem")){ t.classList.add("dim","done"); }
+  });
+}
+async function mnCashout(){
+  if(!mnState) return;
+  $("mn-cash").disabled = true;
+  try{
+    const r = await fetch(`${POINTS_API}/api/play/mines/cashout`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+window._token},
+      body: JSON.stringify({id:mnState.id})
+    });
+    const d = await r.json();
+    $("mn-cash").disabled = false;
+    if(!r.ok){ $("mn-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return; }
+    mnRevealAllMines(d.mine_set, -1);
+    $("mn-result").innerHTML = `<span style="color:var(--ok)">Levantaste ×${d.multiplier.toFixed(2)} · +${d.delta} 🎉</span>`;
+    mnUpdateBalance(d.balance);
+    mnEnd();
+  }catch(e){ $("mn-cash").disabled=false; $("mn-result").innerHTML='<span style="color:var(--down)">falha de ligação</span>'; }
+}
+function mnEnd(){
+  mnState = null;
+  mnSetPlaying(false);
+  document.querySelectorAll("#mn-grid .mn-tile").forEach(t=>t.classList.add("done"));
+}
+function mnUpdateBalance(b){
+  if(b==null) return;
+  const f = b.toLocaleString("pt-PT");
+  $("mn-balance").textContent = f;
+  const up=$("u-points"); if(up) up.textContent=f;
+}
+
+// ====== PLINKO ======
+const PK_ROWS = 12;
+let pkMults = [14,4,2,1.4,1.1,0.8,0.5,0.8,1.1,1.4,2,4,14];
+let pkBusy = false;
+function pkGeom(){
+  const board = $("pk-board");
+  const W = board.clientWidth, H = board.clientHeight;
+  const pad = 16;
+  const slotW = W/(PK_ROWS+1);
+  const cx = W/2;
+  const rowGap = (H - pad*2 - 6) / PK_ROWS;
+  return {W,H,pad,slotW,cx,rowGap};
+}
+function pkBuild(){
+  const board = $("pk-board"); if(!board) return;
+  board.innerHTML = "";
+  const g = pkGeom();
+  for(let r=1;r<PK_ROWS;r++){
+    for(let j=0;j<=r;j++){
+      const peg=document.createElement("div"); peg.className="pk-peg";
+      peg.style.left=(g.cx+(2*j-r)*(g.slotW/2))+"px";
+      peg.style.top=(g.pad+r*g.rowGap)+"px";
+      board.appendChild(peg);
+    }
+  }
+  const ball=document.createElement("div"); ball.className="pk-ball"; ball.id="pk-ball"; ball.style.opacity="0";
+  ball.style.left=g.cx+"px"; ball.style.top=g.pad+"px";
+  board.appendChild(ball);
+  const sl=$("pk-slots"); sl.innerHTML="";
+  pkMults.forEach((m,i)=>{
+    const s=document.createElement("div"); s.className="pk-slot"; s.dataset.s=i;
+    s.textContent=m+"×";
+    sl.appendChild(s);
+  });
+}
+async function pkDrop(){
+  if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
+  if(pkBusy) return;
+  const bet=parseInt($("pk-bet").value)||0;
+  if(bet<1){ $("pk-result").innerHTML='<span style="color:var(--down)">Aposta pelo menos 1 ponto.</span>'; return; }
+  if(!$("pk-ball")) pkBuild();
+  pkBusy=true; $("pk-drop").disabled=true;
+  document.querySelectorAll("#pk-slots .pk-slot").forEach(s=>s.classList.remove("hit"));
+  $("pk-result").innerHTML='<span style="color:var(--muted)">a cair…</span>';
+  try{
+    const r=await fetch(`${POINTS_API}/api/play/plinko`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+window._token},
+      body: JSON.stringify({bet})
+    });
+    const d=await r.json();
+    if(!r.ok){ pkBusy=false; $("pk-drop").disabled=false; $("pk-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return; }
+    if(d.mults){ pkMults=d.mults; }
+    await pkAnimate(d.path, d.slot);
+    const slotEl = $("pk-slots").children[d.slot];
+    if(slotEl) slotEl.classList.add("hit");
+    if(d.delta>0) $("pk-result").innerHTML=`<span style="color:var(--ok)">×${d.mult} · +${d.delta} 🎉</span>`;
+    else if(d.delta===0) $("pk-result").innerHTML=`<span style="color:var(--muted)">×${d.mult} · empate</span>`;
+    else $("pk-result").innerHTML=`<span style="color:var(--down)">×${d.mult} · ${d.delta}</span>`;
+    pkUpdateBalance(d.balance);
+  }catch(e){ $("pk-result").innerHTML='<span style="color:var(--down)">falha de ligação</span>'; }
+  pkBusy=false; $("pk-drop").disabled=false;
+}
+function pkAnimate(path, slot){
+  return new Promise(res=>{
+    const ball=$("pk-ball"); if(!ball){ res(); return; }
+    const g=pkGeom();
+    let k=0, r=0;
+    ball.style.transition="none"; ball.style.opacity="1";
+    ball.style.left=g.cx+"px"; ball.style.top=g.pad+"px";
+    void ball.offsetWidth;
+    ball.style.transition="left .12s linear, top .12s ease-in";
+    function step(){
+      if(r>=path.length){
+        const x=g.cx+(2*slot-PK_ROWS)*(g.slotW/2);
+        ball.style.transition="left .12s linear, top .18s ease-in";
+        ball.style.left=x+"px";
+        ball.style.top=(g.H-6)+"px";
+        setTimeout(()=>{ ball.style.opacity="0"; res(); }, 200);
+        return;
+      }
+      k += path[r]; r++;
+      ball.style.left=(g.cx+(2*k-r)*(g.slotW/2))+"px";
+      ball.style.top=(g.pad+r*g.rowGap)+"px";
+      setTimeout(step, 125);
+    }
+    setTimeout(step, 20);
+  });
+}
+function pkUpdateBalance(b){ if(b==null)return; const f=b.toLocaleString("pt-PT"); $("pk-balance").textContent=f; const up=$("u-points"); if(up)up.textContent=f; }
+
+// ====== CRASH ======
+let crState=null;
+function crLeave(){ crStop(); crState=null; go("lobby"); }
+function crStop(){
+  if(crState){
+    if(crState.raf) cancelAnimationFrame(crState.raf);
+    if(crState.poll) clearInterval(crState.poll);
+    crState.raf=null; crState.poll=null;
+  }
+}
+function crDrawInit(){
+  const c=$("cr-canvas"); if(!c) return;
+  const dpr=window.devicePixelRatio||1;
+  c.width=Math.max(1,c.clientWidth*dpr); c.height=Math.max(1,c.clientHeight*dpr);
+  const ctx=c.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,c.clientWidth,c.clientHeight);
+}
+function crDraw(mult){
+  const c=$("cr-canvas"); if(!c) return; const ctx=c.getContext("2d");
+  const W=c.clientWidth, H=c.clientHeight;
+  ctx.clearRect(0,0,W,H);
+  const k=crState? crState.k : 0.13;
+  const tNow=Math.log(Math.max(mult,1))/k;
+  const denom=Math.max(mult,1.2)-1+0.0001;
+  const N=44;
+  ctx.beginPath();
+  for(let i=0;i<=N;i++){
+    const t=tNow*i/N;
+    const m=Math.exp(k*t);
+    const x=(t/Math.max(tNow,0.0001))*W;
+    const y=H - ((m-1)/denom)*(H-12) - 6;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle="#b14bff"; ctx.lineWidth=3; ctx.shadowColor="#b14bff"; ctx.shadowBlur=12; ctx.stroke();
+  ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
+  ctx.shadowBlur=0; ctx.fillStyle="rgba(177,75,255,.12)"; ctx.fill();
+}
+async function crAction(){
+  if(crState && crState.running) return crCashout();
+  if(!window._token){ alert("Entra com a Twitch primeiro."); return; }
+  const bet=parseInt($("cr-bet").value)||0;
+  if(bet<1){ $("cr-result").innerHTML='<span style="color:var(--down)">Aposta pelo menos 1 ponto.</span>'; return; }
+  $("cr-action").disabled=true;
+  $("cr-result").innerHTML='<span style="color:var(--muted)">a lançar…</span>';
+  try{
+    const r=await fetch(`${POINTS_API}/api/play/crash/start`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+window._token},
+      body: JSON.stringify({bet})
+    });
+    const d=await r.json();
+    if(!r.ok){ $("cr-action").disabled=false; $("cr-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return; }
+    crState={id:d.id, bet:d.bet, k:d.k||0.13, startPerf:performance.now(), running:true, raf:null, poll:null};
+    crUpdateBalance(d.balance);
+    $("cr-bet").disabled=true;
+    $("cr-action").disabled=false;
+    $("cr-action").textContent="Levantar";
+    $("cr-action").classList.add("cr-cashbtn");
+    $("cr-mult").className="cr-mult";
+    $("cr-result").innerHTML="";
+    crDrawInit();
+    crLoop();
+    crState.poll=setInterval(crPoll, 350);
+  }catch(e){ $("cr-action").disabled=false; $("cr-result").innerHTML='<span style="color:var(--down)">falha de ligação</span>'; }
+}
+function crLoop(){
+  if(!crState||!crState.running) return;
+  const elapsed=(performance.now()-crState.startPerf)/1000;
+  let m=Math.exp(crState.k*elapsed);
+  if(m>100) m=100;
+  m=Math.round(m*100)/100;
+  $("cr-mult").textContent=m.toFixed(2)+"×";
+  crDraw(m);
+  crState.raf=requestAnimationFrame(crLoop);
+}
+async function crPoll(){
+  if(!crState||!crState.running) return;
+  try{
+    const r=await fetch(`${POINTS_API}/api/play/crash/state`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+window._token},
+      body: JSON.stringify({id:crState.id})
+    });
+    const d=await r.json();
+    if(!r.ok) return;
+    if(d.crashed) crBust(d.crash_point, d.balance);
+  }catch(e){}
+}
+function crBust(cp, balance){
+  if(!crState) return;
+  const bet=crState.bet;
+  crState.running=false; crStop();
+  $("cr-mult").textContent=(cp!=null? Number(cp).toFixed(2):"—")+"×";
+  $("cr-mult").className="cr-mult bust";
+  $("cr-result").innerHTML=`<span style="color:var(--down)">💥 Rebentou em ×${cp!=null?Number(cp).toFixed(2):"?"}. Perdeste ${bet}</span>`;
+  if(balance!=null) crUpdateBalance(balance);
+  crReset();
+}
+async function crCashout(){
+  if(!crState||!crState.running) return;
+  const bet=crState.bet, id=crState.id;
+  $("cr-action").disabled=true;
+  try{
+    const r=await fetch(`${POINTS_API}/api/play/crash/cashout`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+window._token},
+      body: JSON.stringify({id})
+    });
+    const d=await r.json();
+    if(crState) crState.running=false;
+    crStop();
+    if(!r.ok){ $("cr-action").disabled=false; $("cr-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; crReset(); return; }
+    if(d.cashed){
+      $("cr-mult").textContent=Number(d.multiplier).toFixed(2)+"×";
+      $("cr-mult").className="cr-mult win";
+      $("cr-result").innerHTML=`<span style="color:var(--ok)">Levantaste ×${Number(d.multiplier).toFixed(2)} · +${d.delta} 🎉</span>`;
+      crUpdateBalance(d.balance);
+    }else{
+      $("cr-mult").textContent=(d.crash_point!=null?Number(d.crash_point).toFixed(2):"—")+"×";
+      $("cr-mult").className="cr-mult bust";
+      $("cr-result").innerHTML=`<span style="color:var(--down)">💥 Tarde demais! Rebentou em ×${d.crash_point!=null?Number(d.crash_point).toFixed(2):"?"}. Perdeste ${bet}</span>`;
+      crUpdateBalance(d.balance);
+    }
+    crReset();
+  }catch(e){ $("cr-action").disabled=false; $("cr-result").innerHTML='<span style="color:var(--down)">falha de ligação</span>'; }
+}
+function crReset(){
+  $("cr-bet").disabled=false;
+  $("cr-action").disabled=false;
+  $("cr-action").textContent="Lançar";
+  $("cr-action").classList.remove("cr-cashbtn");
+  crState=null;
+}
+function crUpdateBalance(b){ if(b==null)return; const f=b.toLocaleString("pt-PT"); $("cr-balance").textContent=f; const up=$("u-points"); if(up)up.textContent=f; }
+
+// expor handlers usados em onclick inline
+window.mnLeave = mnLeave; window.crLeave = crLeave;
+// ligar botões
+(function(){
+  const b1=$("mn-start"); if(b1) b1.addEventListener("click", mnStart);
+  const b2=$("mn-cash");  if(b2) b2.addEventListener("click", mnCashout);
+  const b3=$("pk-drop");  if(b3) b3.addEventListener("click", pkDrop);
+  const b4=$("cr-action");if(b4) b4.addEventListener("click", crAction);
+})();
+
 // ====== estado AO VIVO (Twitch) — automático ======
 let _liveState;
 function setLiveUI(isLive, st){
