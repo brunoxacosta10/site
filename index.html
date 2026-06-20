@@ -410,6 +410,18 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .bj-deck span:nth-child(4){transform:translate(4.5px,-4.5px)}
 .bj-deck span:nth-child(5){transform:translate(6px,-6px)}
 @keyframes dealCard{from{transform:translateY(-20px) scale(.8);opacity:0}to{transform:none;opacity:1}}
+/* botao de som */
+.snd-toggle{background:rgba(177,75,255,.10);border:1px solid var(--line);color:var(--txt);width:38px;height:38px;border-radius:10px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .15s,border-color .15s;flex-shrink:0}
+.snd-toggle:hover{background:rgba(177,75,255,.20);border-color:rgba(177,75,255,.4)}
+/* carta a virar (blackjack) */
+.flip3d{width:60px;height:84px;perspective:600px;-webkit-perspective:600px;flex:0 0 auto}
+.flip3d .c3d{position:relative;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transform:rotateY(180deg);-webkit-transform:rotateY(180deg);animation:bjFlip .55s cubic-bezier(.2,.7,.2,1) forwards}
+.flip3d .c3d-face{position:absolute;inset:0;border-radius:8px;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 4px 12px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:"Sora";font-weight:800;font-size:22px;color:#1a1a1a}
+.flip3d .c3d-back{background:repeating-linear-gradient(45deg,#5d2bff,#5d2bff 6px,#b14bff 6px,#b14bff 12px);border:1px solid rgba(255,255,255,.12)}
+.flip3d .c3d-front{background:#fff;transform:rotateY(180deg);-webkit-transform:rotateY(180deg)}
+.flip3d .c3d-front.red{color:#c62836}
+.flip3d .c3d-front .suit{font-size:16px;margin-top:-2px}
+@keyframes bjFlip{from{transform:rotateY(0deg)}to{transform:rotateY(180deg)}}
 .bj-msg{text-align:center;font-family:"Sora";font-weight:800;font-size:22px;min-height:30px;margin-top:6px}
 .bj-act{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--txt);flex:1;justify-content:center;min-width:90px}
 .bj-act:hover{border-color:var(--gold)}
@@ -486,6 +498,15 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
 .hamb{display:none;width:42px;height:42px;border-radius:11px;background:var(--panel);border:1px solid var(--line);
   align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .hamb svg{width:20px;height:20px;stroke:var(--txt);fill:none;stroke-width:2}
+/* afinacao para ecras pequenos (telemovel) */
+@media (max-width:560px){
+  .game-panel{padding:18px 14px}
+  .pk-board{height:262px}
+  .pk-slots{gap:1px}
+  .pk-slot{font-size:7.5px;padding:5px 0}
+  .cr-mult{font-size:40px}
+  .snd-toggle{width:34px;height:34px;font-size:15px}
+}
 </style>
 </head>
 <body>
@@ -546,6 +567,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
       <div class="search-drop" id="search-drop"></div>
     </div>
     <div class="top-right">
+      <button class="snd-toggle" id="snd-btn" title="Som" aria-label="Ligar ou desligar som">🔊</button>
       <div class="points-pill" id="user-box" style="display:none">
         <img id="u-avatar" src="" alt="">
         <span class="pn" id="u-name"></span>
@@ -868,6 +890,76 @@ const POINTS_API = "https://web-production-6d300.up.railway.app";
 const TWITCH_CHANNEL = "jigadores";  // muda aqui se o canal mudar
 const $ = id => document.getElementById(id);
 
+// ====== SOM (Web Audio, sintetizado - sem ficheiros) ======
+let _actx = null;
+let sndOn = true;
+try { sndOn = localStorage.getItem("jg_snd") !== "0"; } catch(e){}
+function audioCtx(){
+  if(!sndOn) return null;
+  try{
+    if(!_actx){ const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return null; _actx = new AC(); }
+    if(_actx.state === "suspended") _actx.resume();
+    return _actx;
+  }catch(e){ return null; }
+}
+function tone(freq, dur, type, vol, when){
+  const ac = audioCtx(); if(!ac) return;
+  const t0 = ac.currentTime + (when||0);
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type||"sine"; o.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(vol||0.15, t0+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  o.connect(g); g.connect(ac.destination);
+  o.start(t0); o.stop(t0+dur+0.02);
+}
+function sweep(f1, f2, dur, type, vol){
+  const ac = audioCtx(); if(!ac) return;
+  const t0 = ac.currentTime;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type||"sine"; o.frequency.setValueAtTime(f1, t0);
+  o.frequency.exponentialRampToValueAtTime(Math.max(1,f2), t0+dur);
+  g.gain.setValueAtTime(vol||0.15, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  o.connect(g); g.connect(ac.destination);
+  o.start(t0); o.stop(t0+dur+0.02);
+}
+function noiseBurst(dur, vol){
+  const ac = audioCtx(); if(!ac) return;
+  const t0 = ac.currentTime;
+  const n = Math.floor(ac.sampleRate * dur);
+  const buf = ac.createBuffer(1, n, ac.sampleRate);
+  const data = buf.getChannelData(0);
+  for(let i=0;i<n;i++){ data[i] = (Math.random()*2-1) * Math.pow(1 - i/n, 2); }
+  const srcN = ac.createBufferSource(); srcN.buffer = buf;
+  const lp = ac.createBiquadFilter(); lp.type="lowpass";
+  lp.frequency.setValueAtTime(1200, t0); lp.frequency.exponentialRampToValueAtTime(180, t0+dur);
+  const g = ac.createGain(); g.gain.setValueAtTime(vol||0.3, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  srcN.connect(lp); lp.connect(g); g.connect(ac.destination);
+  srcN.start(t0); srcN.stop(t0+dur+0.02);
+}
+const Snd = {
+  click(){ tone(420,.05,"triangle",.10); },
+  pop(){ tone(680,.07,"triangle",.13); tone(1020,.06,"triangle",.10,.05); },
+  flip(){ sweep(300,900,.18,"triangle",.14); },
+  deal(){ noiseBurst(.05,.10); tone(520,.04,"square",.05); },
+  tick(){ tone(1050,.03,"square",.07); },
+  win(){ tone(660,.10,"triangle",.16); tone(880,.12,"triangle",.16,.10); tone(1175,.16,"triangle",.16,.22); },
+  bigwin(){ [523,659,784,1047,1319].forEach((f,i)=>tone(f,.20,"triangle",.16,i*.09)); },
+  lose(){ sweep(380,120,.34,"sawtooth",.13); },
+  cash(){ tone(880,.08,"triangle",.16); tone(1320,.14,"triangle",.16,.07); },
+  explode(){ noiseBurst(.45,.40); sweep(170,40,.45,"sawtooth",.17); }
+};
+function updateSoundBtn(){ const b=$("snd-btn"); if(b){ b.textContent = sndOn ? "🔊" : "🔇"; b.title = sndOn ? "Som ligado" : "Som desligado"; } }
+function toggleSound(){
+  sndOn = !sndOn;
+  try{ localStorage.setItem("jg_snd", sndOn ? "1" : "0"); }catch(e){}
+  updateSoundBtn();
+  if(sndOn) Snd.click();
+}
+if($("snd-btn")) $("snd-btn").addEventListener("click", toggleSound);
+updateSoundBtn();
+
 // constrói o embed do Twitch com o domínio actual (funciona em jigadores.com,
 // no preview do Vercel, em localhost — o Twitch exige que o 'parent' bata certo)
 function buildTwitchEmbed(){
@@ -1149,6 +1241,7 @@ async function playCoinflip(choice){
   coin.style.transition = "none";
   coin.style.transform = "rotateY(0deg)";
   coin.classList.add("flipping");
+  Snd.flip();
   $("cf-result").innerHTML = '<span style="color:var(--muted)">🪙 a girar…</span>';
   try{
     const r = await fetch(`${POINTS_API}/api/play/coinflip`, {
@@ -1167,8 +1260,10 @@ async function playCoinflip(choice){
     setTimeout(()=>{
       const saiu = d.result==="heads" ? "Cara" : "Coroa";
       if(d.won){
+        Snd.win();
         $("cf-result").innerHTML = `<span style="color:var(--ok)">Saiu ${saiu}! Ganhaste ${bet*2} 🎉</span>`;
       }else{
+        Snd.lose();
         $("cf-result").innerHTML = `<span style="color:var(--down)">Saiu ${saiu}. Perdeste ${Math.abs(d.delta)} 😢</span>`;
       }
       $("cf-balance").textContent = d.balance.toLocaleString("pt-PT");
@@ -1192,6 +1287,10 @@ function cardHtml(c){
   const red = (c.s==="♥"||c.s==="♦");
   return `<div class="card ${red?'red':''}">${c.r}<span class="suit">${c.s}</span></div>`;
 }
+function cardFlipHtml(c){
+  const red = (c.s==="♥"||c.s==="♦");
+  return `<div class="flip3d"><div class="c3d"><div class="c3d-face c3d-back"></div><div class="c3d-face c3d-front ${red?'red':''}">${c.r}<span class="suit">${c.s}</span></div></div></div>`;
+}
 function bjDealCards(d, prevDealer, prevHands, splitChanged){
   const deck = $("bj-deck");
   if(!deck) return;
@@ -1203,8 +1302,8 @@ function bjDealCards(d, prevDealer, prevHands, splitChanged){
     const start = splitChanged ? 0 : (prevHands[i]||0);
     for(let j=start;j<cards.length;j++){ if(cards[j]) newEls.push(cards[j]); }
   });
-  const dCards = $("bj-dealer-cards").querySelectorAll(".card");
-  for(let i=prevDealer;i<dCards.length;i++){ if(dCards[i]) newEls.push(dCards[i]); }
+  const dCards = $("bj-dealer-cards").children;
+  for(let i=prevDealer;i<dCards.length;i++){ if(dCards[i] && dCards[i].classList.contains("card")) newEls.push(dCards[i]); }
   if(!newEls.length) return;
   const dr = deck.getBoundingClientRect();
   newEls.forEach(el=>{
@@ -1218,6 +1317,7 @@ function bjDealCards(d, prevDealer, prevHands, splitChanged){
     const delay = idx*110;
     el.style.transition=`transform .5s cubic-bezier(.18,.7,.2,1) ${delay}ms, opacity .22s linear ${delay}ms`;
     el.style.transform="none"; el.style.opacity="1";
+    setTimeout(()=>Snd.deal(), delay);
   });
   const total = (newEls.length-1)*110 + 540;
   setTimeout(()=>{ newEls.forEach(el=>{ el.style.zIndex=""; }); }, total);
@@ -1227,8 +1327,10 @@ function renderBlackjack(d){
   const prevDealer = sameGame ? bjPrev.dealer : 0;
   const prevHands = sameGame ? bjPrev.hands : [];
   const splitChanged = prevHands.length !== d.hands.length;
+  const revealHole = sameGame && bjPrev.holeHidden && d.dealer.cards[1] && d.dealer.cards[1].r!=="?";
   bjGame = d;
-  $("bj-dealer-cards").innerHTML = d.dealer.cards.map(cardHtml).join("");
+  $("bj-dealer-cards").innerHTML = d.dealer.cards.map((c,i)=> (revealHole && i===1) ? cardFlipHtml(c) : cardHtml(c)).join("");
+  if(revealHole) Snd.flip();
   $("bj-dealer-val").textContent = d.dealer.value!=null ? d.dealer.value : "";
   const multi = d.hands.length>1;
   $("bj-player-hands").innerHTML = d.hands.map((h,i)=>{
@@ -1260,7 +1362,7 @@ function renderBlackjack(d){
     showBjResult(d);
   }
   bjDealCards(d, prevDealer, prevHands, splitChanged);
-  bjPrev = { id:d.game_id, dealer:d.dealer.cards.length, hands:d.hands.map(h=>h.cards.length) };
+  bjPrev = { id:d.game_id, dealer:d.dealer.cards.length, hands:d.hands.map(h=>h.cards.length), holeHidden: !!(d.dealer.cards[1] && d.dealer.cards[1].r==="?") };
 }
 function resultWord(r){
   return {win:"Ganhou",lose:"Perdeu",push:"Empate",bust:"Rebentou",blackjack:"Blackjack!"}[r]||r;
@@ -1268,8 +1370,8 @@ function resultWord(r){
 function showBjResult(d){
   const delta = d.total_delta;
   let txt, col;
-  if(delta>0){ txt=`Ganhaste +${delta} 🎉`; col="var(--ok)"; }
-  else if(delta<0){ txt=`Perdeste ${Math.abs(delta)} 😢`; col="var(--down)"; }
+  if(delta>0){ txt=`Ganhaste +${delta} 🎉`; col="var(--ok)"; setTimeout(()=> (delta>=200?Snd.bigwin():Snd.win()), 360); }
+  else if(delta<0){ txt=`Perdeste ${Math.abs(delta)} 😢`; col="var(--down)"; setTimeout(()=>Snd.lose(), 360); }
   else { txt="Empate — recuperaste a aposta"; col="var(--muted)"; }
   $("bj-msg").innerHTML = `<span style="color:${col}">${txt}</span>`;
 }
@@ -1453,14 +1555,15 @@ async function spinRoulette(){
       spinning=false; $("rl-spin").disabled=false; return;
     }
     spinWheelTo(d.number);
+    (function(){ let i=0; (function tk(){ if(i>=20||!sndOn) return; Snd.tick(); i++; setTimeout(tk, 80 + i*15); })(); })();
     setTimeout(()=>{
       const cores = {red:"Vermelho",black:"Preto",green:"Verde"};
       const corHex = d.color==="red" ? "#ff6b7e" : (d.color==="green" ? "#46e08a" : "#ece8ff");
       $("rl-number-big").textContent = d.number;
       $("rl-number-big").style.color = corHex;
       let msg = `Saiu <b style="color:${corHex}">${d.number} (${cores[d.color]})</b> — `;
-      if(d.delta > 0) msg += `<span style="color:var(--ok)">ganhaste ${d.gross} 🎉</span>`;
-      else if(d.delta < 0) msg += `<span style="color:var(--down)">perdeste ${Math.abs(d.delta)} 😢</span>`;
+      if(d.delta > 0){ msg += `<span style="color:var(--ok)">ganhaste ${d.gross} 🎉</span>`; Snd.win(); }
+      else if(d.delta < 0){ msg += `<span style="color:var(--down)">perdeste ${Math.abs(d.delta)} 😢</span>`; Snd.lose(); }
       else msg += `empate`;
       $("rl-result").innerHTML = msg;
       $("rl-balance").textContent = d.balance.toLocaleString("pt-PT");
@@ -1643,6 +1746,7 @@ async function mnReveal(i){
     if(!r.ok){ tile.classList.remove("done"); $("mn-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return; }
     if(d.bust){
       tile.classList.add("mine"); tile.textContent="💣";
+      Snd.explode();
       mnRevealAllMines(d.mine_set, i);
       $("mn-result").innerHTML = `<span style="color:var(--down)">💥 Bateste numa mina! Perdeste ${mnState.bet}</span>`;
       mnUpdateBalance(d.balance);
@@ -1650,8 +1754,10 @@ async function mnReveal(i){
       return;
     }
     tile.classList.add("gem"); tile.textContent="💎";
+    Snd.pop();
     mnState.mult = d.multiplier;
     if(d.cleared){
+      Snd.bigwin();
       $("mn-result").innerHTML = `<span style="color:var(--ok)">Limpaste tudo! ×${d.multiplier.toFixed(2)} · ganhaste ${d.payout} 🎉</span>`;
       mnUpdateBalance(d.balance);
       mnEnd();
@@ -1681,6 +1787,7 @@ async function mnCashout(){
     $("mn-cash").disabled = false;
     if(!r.ok){ $("mn-result").innerHTML=`<span style="color:var(--down)">${d.error||"erro"}</span>`; return; }
     mnRevealAllMines(d.mine_set, -1);
+    Snd.cash();
     $("mn-result").innerHTML = `<span style="color:var(--ok)">Levantaste ×${d.multiplier.toFixed(2)} · ganhaste ${d.payout} 🎉</span>`;
     mnUpdateBalance(d.balance);
     mnEnd();
@@ -1779,7 +1886,7 @@ async function pkDrop(){
     pkFlight=Math.max(0,pkFlight-1);
     const slotEl=$("pk-slots").children[d.slot];
     if(slotEl){ slotEl.classList.add("hit"); setTimeout(()=>slotEl.classList.remove("hit"), 700); }
-    if(d.delta>0) $("pk-result").innerHTML=`<span style="color:var(--ok)">×${d.mult} · ganhaste ${d.payout} 🎉</span>`;
+    if(d.delta>0){ $("pk-result").innerHTML=`<span style="color:var(--ok)">×${d.mult} · ganhaste ${d.payout} 🎉</span>`; if(d.mult>=10) Snd.bigwin(); else Snd.win(); }
     else if(d.delta===0) $("pk-result").innerHTML=`<span style="color:var(--muted)">×${d.mult} · recebeste ${d.payout}</span>`;
     else $("pk-result").innerHTML=`<span style="color:var(--down)">×${d.mult} · recebeste ${d.payout}</span>`;
   }catch(e){
@@ -1804,6 +1911,7 @@ function pkAnimate(path, slot){
         ball.style.transition="left .12s linear, top .18s ease-in";
         ball.style.left=x+"px";
         ball.style.top=(g.H-6)+"px";
+        Snd.tick();
         setTimeout(()=>{ ball.remove(); res(); }, 220);
         return;
       }
@@ -1911,6 +2019,7 @@ function crBust(cp, balance){
   crState.running=false; crStop();
   $("cr-mult").textContent=(cp!=null? Number(cp).toFixed(2):"—")+"×";
   $("cr-mult").className="cr-mult bust";
+  Snd.explode();
   $("cr-result").innerHTML=`<span style="color:var(--down)">💥 Rebentou em ×${cp!=null?Number(cp).toFixed(2):"?"}. Perdeste ${bet}</span>`;
   if(balance!=null) crUpdateBalance(balance);
   crReset();
@@ -1939,11 +2048,13 @@ async function crCashout(){
     if(d.cashed){
       $("cr-mult").textContent=Number(d.multiplier).toFixed(2)+"×";
       $("cr-mult").className="cr-mult win";
+      if(Number(d.multiplier)>=5) Snd.bigwin(); else Snd.cash();
       $("cr-result").innerHTML=`<span style="color:var(--ok)">Levantaste ×${Number(d.multiplier).toFixed(2)} · ganhaste ${d.payout} 🎉</span>`;
       crUpdateBalance(d.balance);
     }else{
       $("cr-mult").textContent=(d.crash_point!=null?Number(d.crash_point).toFixed(2):"—")+"×";
       $("cr-mult").className="cr-mult bust";
+      Snd.explode();
       $("cr-result").innerHTML=`<span style="color:var(--down)">💥 Tarde demais! Rebentou em ×${d.crash_point!=null?Number(d.crash_point).toFixed(2):"?"}. Perdeste ${bet}</span>`;
       crUpdateBalance(d.balance);
     }
